@@ -5,22 +5,25 @@
 @section('content')
     {{-- Hero — style SaaS clair, maquettes flottantes --}}
     <section class="relative overflow-hidden pt-10 pb-16 sm:pt-14 lg:pb-24" aria-labelledby="hero-heading">
-        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgb(59_130_246/0.12),transparent)]" aria-hidden="true"></div>
-        <div class="pointer-events-none absolute right-0 top-24 h-72 w-72 rounded-full bg-brand-200/30 blur-3xl" aria-hidden="true"></div>
-        <div class="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-indigo-200/25 blur-3xl" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgb(59_130_246/0.14),transparent)]" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute right-0 top-20 h-80 w-80 rounded-full bg-ember-400/20 blur-3xl" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute right-1/4 top-40 h-56 w-56 rounded-full bg-brand-300/25 blur-3xl" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-brand-200/35 blur-3xl" aria-hidden="true"></div>
 
         <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:pt-4">
             <div class="max-w-xl">
-                <p class="inline-flex items-center gap-2 rounded-full border border-brand-200/80 bg-white/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-800 shadow-sm">
+                <p
+                    class="inline-flex items-center gap-2 rounded-full border border-brand-200/80 bg-white/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-800 shadow-sm ring-1 ring-white/60"
+                >
                     <span class="relative flex h-2 w-2">
-                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-400 opacity-75"></span>
-                        <span class="relative inline-flex h-2 w-2 rounded-full bg-brand-500"></span>
+                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-ember-400 opacity-75"></span>
+                        <span class="relative inline-flex h-2 w-2 rounded-full bg-ember-500"></span>
                     </span>
                     Optimisé GSM · Essai gratuit
                 </p>
                 <h1 id="hero-heading" class="mt-6 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-[3.25rem] lg:leading-[1.1]">
                     Vos bénévoles s’inscrivent
-                    <span class="bg-gradient-to-r from-brand-600 to-indigo-600 bg-clip-text text-transparent">depuis leur téléphone.</span>
+                    <span class="bg-gradient-to-r from-brand-600 via-brand-500 to-ember-500 bg-clip-text text-transparent">depuis leur téléphone.</span>
                 </h1>
                 <p class="mt-5 text-lg leading-relaxed text-slate-600 sm:text-xl">
                     Un lien à envoyer par <strong class="font-semibold text-slate-800">SMS</strong>, <strong class="font-semibold text-slate-800">WhatsApp</strong> ou affiche : vos équipes choisissent leurs créneaux sur une page <strong class="font-semibold text-slate-800">tactile</strong>, en 4G, sans appli à installer. Vous pilotez tout depuis le web.
@@ -29,9 +32,9 @@
                     <a href="{{ route('register') }}" class="landing-btn-primary w-full justify-center sm:w-auto">
                         Commencer gratuitement
                     </a>
-                    <a href="#features" class="landing-btn-ghost w-full justify-center sm:w-auto">
-                        <svg class="h-5 w-5 text-brand-600" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                        Voir l’expérience mobile
+                    <a href="#chiffres" class="landing-btn-ghost w-full justify-center sm:w-auto">
+                        <svg class="h-5 w-5 text-ember-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                        Chiffres en direct
                     </a>
                 </div>
                 <p class="mt-6 text-sm text-slate-500">Grandes zones tactiles, formulaire lisible au soleil, raccourci « Ajouter à l’écran d’accueil » sur iPhone &amp; Android.</p>
@@ -95,6 +98,139 @@
         </div>
     </section>
 
+    {{-- Statistiques plateforme (données réelles) --}}
+    <section id="chiffres" class="scroll-mt-24 pb-14 pt-2 sm:pb-20" aria-labelledby="chiffres-heading">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+            <div class="text-center">
+                <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-600">Plateforme</p>
+                <h2 id="chiffres-heading" class="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                    Ce qui se passe sur {{ config('app.name') }}
+                </h2>
+                <p class="mx-auto mt-3 max-w-2xl text-base text-slate-600">
+                    Compteurs mis à jour en temps réel : inscriptions, places encore disponibles, créneaux et file d’attente.
+                </p>
+            </div>
+
+            <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <article
+                    class="organizer-card relative overflow-hidden border-t-4 border-t-brand-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Bénévoles inscrits</p>
+                            <p class="mt-2 text-4xl font-bold tabular-nums text-slate-900">{{ number_format($stats['registrations'], 0, ',', ' ') }}</p>
+                            <p class="mt-2 text-sm text-slate-600">Inscriptions confirmées sur les créneaux</p>
+                        </div>
+                        <span
+                            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-600/25"
+                        >
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                            </svg>
+                        </span>
+                    </div>
+                </article>
+
+                <article
+                    class="organizer-card relative overflow-hidden border-t-4 border-t-ember-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Places à combler</p>
+                            <p class="mt-2 text-4xl font-bold tabular-nums text-slate-900">{{ number_format($stats['spots_open'], 0, ',', ' ') }}</p>
+                            <p class="mt-2 text-sm text-slate-600">Reste à pourvoir sur l’ensemble des créneaux</p>
+                        </div>
+                        <span
+                            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-ember-400 to-ember-600 text-white shadow-md shadow-ember-500/30"
+                        >
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                                />
+                            </svg>
+                        </span>
+                    </div>
+                </article>
+
+                <article
+                    class="organizer-card relative overflow-hidden border-t-4 border-t-slate-700 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Taux de remplissage</p>
+                            <p class="mt-2 flex items-baseline gap-1 text-4xl font-bold tabular-nums text-slate-900">
+                                {{ $stats['fill_percent'] }}<span class="text-2xl font-bold text-slate-400">%</span>
+                            </p>
+                            <div class="mt-4 h-3 w-full overflow-hidden rounded-full bg-slate-200/90">
+                                <div
+                                    class="h-full rounded-full bg-gradient-to-r from-brand-500 via-brand-400 to-ember-400 transition-all"
+                                    style="width: {{ min(100, $stats['fill_percent']) }}%"
+                                ></div>
+                            </div>
+                            <p class="mt-2 text-sm text-slate-600">Sur la capacité totale déclarée</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article
+                    class="organizer-card border-t-4 border-t-brand-400 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Capacité totale</p>
+                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['capacity'], 0, ',', ' ') }}</p>
+                    <p class="mt-2 text-sm text-slate-600">Places offertes (somme des créneaux)</p>
+                </article>
+
+                <article
+                    class="organizer-card border-t-4 border-t-indigo-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Créneaux</p>
+                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['slots'], 0, ',', ' ') }}</p>
+                    <p class="mt-2 text-sm text-slate-600">Plages horaires publiées</p>
+                </article>
+
+                <article
+                    class="organizer-card border-t-4 border-t-violet-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Postes (rôles)</p>
+                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['positions'], 0, ',', ' ') }}</p>
+                    <p class="mt-2 text-sm text-slate-600">Bar, accueil, logistique… configurés</p>
+                </article>
+
+                <article
+                    class="organizer-card border-t-4 border-t-teal-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Événements ouverts</p>
+                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['events_open'], 0, ',', ' ') }}</p>
+                    <p class="mt-2 text-sm text-slate-600">En ligne pour les inscriptions</p>
+                </article>
+
+                <article
+                    class="organizer-card border-t-4 border-t-amber-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Liste d’attente</p>
+                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['waitlist'], 0, ',', ' ') }}</p>
+                    <p class="mt-2 text-sm text-slate-600">Quand les créneaux affichent complet</p>
+                </article>
+
+                <article
+                    class="organizer-card border-t-4 border-t-slate-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Organisateurs</p>
+                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['organizers'], 0, ',', ' ') }}</p>
+                    <p class="mt-2 text-sm text-slate-600">Comptes sur la plateforme</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
     {{-- Preuve sociale / logos --}}
     <section class="border-y border-slate-200/80 bg-white/70 py-10 backdrop-blur-sm">
         <div class="mx-auto max-w-6xl px-4 sm:px-6">
@@ -143,12 +279,30 @@
                             <span class="text-sm font-semibold text-slate-800">Progression des inscriptions</span>
                             <span class="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">Temps réel</span>
                         </div>
-                        <p class="mt-1 text-4xl font-bold text-slate-900">94<span class="text-2xl text-slate-400">%</span></p>
-                        <p class="text-sm text-slate-500">Objectif de remplissage — événement pilote</p>
+                        <p class="mt-1 text-4xl font-bold text-slate-900">
+                            @if ($stats['capacity'] > 0)
+                                {{ $stats['fill_percent'] }}<span class="text-2xl text-slate-400">%</span>
+                            @else
+                                <span class="text-3xl text-slate-500">—</span>
+                            @endif
+                        </p>
+                        <p class="text-sm text-slate-500">
+                            @if ($stats['capacity'] > 0)
+                                Remplissage agrégé sur toute la plateforme
+                            @else
+                                Les barres refléteront vos premières inscriptions
+                            @endif
+                        </p>
                         <div class="mt-8 flex h-40 items-end justify-between gap-2">
-                            @foreach ([20, 35, 28, 50, 45, 62, 58, 78, 85, 92, 88, 94] as $h)
-                                <span class="w-full rounded-t-lg bg-gradient-to-t from-brand-600/90 to-brand-300/80" style="height: {{ $h }}%"></span>
-                            @endforeach
+                            @if ($stats['capacity'] > 0)
+                                @foreach ([20, 35, 28, 50, 45, 62, 58, 78, 85, 92, 88, min(100, $stats['fill_percent'])] as $h)
+                                    <span class="w-full rounded-t-lg bg-gradient-to-t from-brand-600/90 to-ember-400/85" style="height: {{ max(8, $h) }}%"></span>
+                                @endforeach
+                            @else
+                                @foreach ([12, 18, 15, 22, 20, 28, 25, 32, 30, 38, 35, 40] as $h)
+                                    <span class="w-full rounded-t-lg bg-gradient-to-t from-slate-300/90 to-slate-200/80" style="height: {{ $h }}%"></span>
+                                @endforeach
+                            @endif
                         </div>
                         <div class="mt-3 flex justify-between text-xs font-medium text-slate-400">
                             <span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span>
@@ -273,7 +427,13 @@
     </section>
 
     {{-- CTA final --}}
-    <section class="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-800 to-slate-900 px-4 py-20 sm:px-6">
+    <section
+        class="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-900 to-slate-950 px-4 py-20 sm:px-6"
+    >
+        <div
+            class="pointer-events-none absolute -right-20 top-10 h-72 w-72 rounded-full bg-ember-500/20 blur-3xl"
+            aria-hidden="true"
+        ></div>
         <div class="pointer-events-none absolute inset-0 opacity-30" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.06\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')" aria-hidden="true"></div>
         <div class="relative mx-auto max-w-3xl text-center">
             <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Prêt à remplir vos créneaux depuis la poche ?</h2>
