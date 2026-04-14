@@ -5,9 +5,14 @@ import { Link } from '@inertiajs/vue3';
 
 <template>
     <div class="flex min-h-screen flex-col bg-slate-50 lg:flex-row">
-        <div class="relative flex flex-1 flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-slate-900 px-8 py-12 text-white lg:max-w-md lg:px-12 lg:py-16">
-            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_30%_20%,rgb(45_212_191/0.25),transparent)]" />
-            <div class="pointer-events-none absolute -right-20 top-20 h-64 w-64 rounded-full bg-teal-400/20 blur-3xl" />
+        <div
+            class="relative flex flex-1 flex-col justify-between overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-slate-950 px-8 py-12 text-white lg:max-w-md lg:px-12 lg:py-16"
+        >
+            <div
+                class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_30%_20%,rgb(45_212_191/0.22),transparent)]"
+            />
+            <div class="pointer-events-none absolute -right-16 top-24 h-72 w-72 rounded-full bg-ember-500/25 blur-3xl" />
+            <div class="pointer-events-none absolute -left-10 bottom-10 h-56 w-56 rounded-full bg-brand-400/20 blur-3xl" />
             <div class="relative">
                 <Link href="/" class="inline-flex items-center gap-3 rounded-xl text-white/90 transition hover:text-white">
                     <ApplicationLogo variant="inverse" />

@@ -11,16 +11,40 @@ const showingNavigationDropdown = ref(false);
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50">
-        <nav class="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 shadow-sm backdrop-blur-md">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="relative min-h-screen bg-organizer-app bg-organizer-grid">
+        <div
+            class="pointer-events-none fixed inset-0 bg-gradient-to-br from-brand-500/[0.03] via-transparent to-ember-500/[0.06]"
+            aria-hidden="true"
+        />
+        <nav
+            class="sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 shadow-[0_1px_0_0_rgb(255_255_255/0.8)_inset] backdrop-blur-xl"
+        >
+            <div
+                class="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand-400/40 to-ember-400/50"
+                aria-hidden="true"
+            />
+            <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 justify-between">
                     <div class="flex min-w-0 flex-1 items-center gap-3">
-                        <Link :href="route('dashboard')" class="flex shrink-0 items-center gap-3 rounded-lg outline-none ring-brand-500/0 transition focus-visible:ring-2 focus-visible:ring-brand-500">
-                            <ApplicationLogo />
+                        <Link
+                            :href="route('dashboard')"
+                            class="group flex shrink-0 items-center gap-3 rounded-xl outline-none ring-brand-500/0 transition focus-visible:ring-2 focus-visible:ring-brand-500"
+                        >
+                            <span
+                                class="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 via-brand-500 to-brand-700 shadow-lg shadow-brand-600/30 ring-1 ring-white/25 transition group-hover:shadow-ember-glow"
+                            >
+                                <ApplicationLogo variant="inverse" class="relative z-10 h-8 w-8" />
+                                <span
+                                    class="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-ember-400 ring-2 ring-white"
+                                    aria-hidden="true"
+                                />
+                            </span>
                             <span class="hidden flex-col sm:flex">
                                 <span class="truncate text-sm font-bold leading-tight text-slate-900">Espace organisateur</span>
-                                <span class="text-[11px] font-medium uppercase tracking-wider text-slate-500">Planification</span>
+                                <span
+                                    class="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-700/90"
+                                    >Organizz</span
+                                >
                             </span>
                         </Link>
 
@@ -38,7 +62,7 @@ const showingNavigationDropdown = ref(false);
                                     <span class="inline-flex rounded-xl">
                                         <button
                                             type="button"
-                                            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                                            class="inline-flex items-center gap-2 rounded-xl border border-slate-200/90 bg-white/90 px-3 py-2 text-sm font-medium text-slate-800 shadow-sm transition hover:border-brand-200 hover:bg-brand-50/50 focus:outline-none focus:ring-2 focus:ring-brand-500/25"
                                         >
                                             <span class="max-w-[10rem] truncate">{{ $page.props.auth.user.name }}</span>
                                             <svg class="h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -103,13 +127,20 @@ const showingNavigationDropdown = ref(false);
             </div>
         </nav>
 
-        <header v-if="$slots.header" class="border-b border-slate-200/80 bg-white shadow-sm">
-            <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <header
+            v-if="$slots.header"
+            class="relative border-b border-slate-200/70 bg-gradient-to-b from-white via-white to-slate-50/80 shadow-sm"
+        >
+            <div
+                class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-brand-400/0 via-brand-400/30 to-ember-400/0"
+                aria-hidden="true"
+            />
+            <div class="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <slot name="header" />
             </div>
         </header>
 
-        <main>
+        <main class="relative">
             <slot />
         </main>
     </div>
