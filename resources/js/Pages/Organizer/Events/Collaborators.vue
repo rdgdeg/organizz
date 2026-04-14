@@ -21,7 +21,7 @@ const form = useForm({
 });
 
 function submit() {
-    form.post(route('events.collaborators.store', props.event.id), {
+    form.post(route('evenements.coorganisateurs.ajouter', props.event.slug), {
         preserveScroll: true,
         onSuccess: () => form.reset('email'),
     });
@@ -29,7 +29,7 @@ function submit() {
 
 function remove(userId) {
     if (!confirm('Retirer cet accès ?')) return;
-    router.delete(route('events.collaborators.destroy', [props.event.id, userId]));
+    router.delete(route('evenements.coorganisateurs.retirer', [props.event.slug, userId]));
 }
 </script>
 
@@ -40,7 +40,7 @@ function remove(userId) {
         <template #header>
             <div class="flex flex-col gap-2">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">Co-organisateurs</h2>
-                <Link :href="route('events.show', event.id)" class="text-sm text-brand-700 hover:underline">
+                <Link :href="route('evenements.montrer', event.slug)" class="text-sm text-brand-700 hover:underline">
                     ← Retour événement
                 </Link>
             </div>

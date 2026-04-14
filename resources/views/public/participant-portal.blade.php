@@ -36,7 +36,7 @@
                             <p class="mt-2 text-xs font-semibold text-amber-800">{{ __('Liste d’attente') }}</p>
                         @endif
                         @if ($canEdit)
-                            <form method="post" action="{{ route('participant.portal.cancel', ['token' => $token]) }}" class="mt-3" onsubmit="return confirm(@json(__('Annuler ce créneau ?')));">
+                            <form method="post" action="{{ route('participant.annuler', ['token' => $token]) }}" class="mt-3" onsubmit="return confirm(@json(__('Annuler ce créneau ?')));">
                                 @csrf
                                 <input type="hidden" name="registration_id" value="{{ $r->id }}">
                                 <button type="submit" class="text-sm font-medium text-rose-700 underline hover:text-rose-900">{{ __('Annuler ce créneau') }}</button>

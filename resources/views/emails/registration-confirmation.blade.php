@@ -26,11 +26,11 @@
     $portal = \App\Models\ParticipantEmailToken::query()->where('email', strtolower($registrations->first()->email))->first();
 @endphp
 @if ($portal)
-<p style="margin-top:16px;font-size:14px;"><a href="{{ url('/participant/'.$portal->token) }}" style="color:#2563eb;font-weight:600;">{{ __('Mes inscriptions — tout voir et gérer sur une seule page') }}</a></p>
+<p style="margin-top:16px;font-size:14px;"><a href="{{ route('participant.espace', ['token' => $portal->token]) }}" style="color:#2563eb;font-weight:600;">{{ __('Mes inscriptions — tout voir et gérer sur une seule page') }}</a></p>
 @endif
 <p style="margin-top:16px;font-size:14px;">{{ __('Pour annuler un créneau directement :') }}</p>
 @foreach ($registrations as $r)
-<p style="font-size:14px;"><a href="{{ url('/registration/'.$r->token.'/cancel') }}" style="color:#2563eb;">{{ __('Annuler ce créneau') }}</a></p>
+<p style="font-size:14px;"><a href="{{ route('evenement_inscription.annuler', ['token' => $r->token]) }}" style="color:#2563eb;">{{ __('Annuler ce créneau') }}</a></p>
 @endforeach
 @if ($organizerEmail)
 <p style="margin-top:16px;font-size:14px;">{{ __('Contact organisateur : :email', ['email' => $organizerEmail]) }}</p>

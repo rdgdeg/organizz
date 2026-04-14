@@ -27,6 +27,7 @@ class ReminderRuleController extends Controller
         return Inertia::render('Organizer/Reminders/Index', [
             'event' => [
                 'id' => $event->id,
+                'slug' => $event->slug,
                 'title' => $event->title,
                 'date_start' => $event->date_start?->toDateString(),
             ],
@@ -50,7 +51,7 @@ class ReminderRuleController extends Controller
             'active' => (bool) ($validated['active'] ?? true),
         ]);
 
-        return redirect()->route('events.reminders.index', $event)->with('success', __('Règle créée.'));
+        return redirect()->route('evenements.rappels.index', $event)->with('success', __('Règle créée.'));
     }
 
     public function update(Request $request, Event $event, ReminderRule $reminderRule)
@@ -72,7 +73,7 @@ class ReminderRuleController extends Controller
             'active' => (bool) ($validated['active'] ?? false),
         ]);
 
-        return redirect()->route('events.reminders.index', $event)->with('success', __('Règle mise à jour.'));
+        return redirect()->route('evenements.rappels.index', $event)->with('success', __('Règle mise à jour.'));
     }
 
     public function destroy(Event $event, ReminderRule $reminderRule)
@@ -84,7 +85,7 @@ class ReminderRuleController extends Controller
 
         $reminderRule->delete();
 
-        return redirect()->route('events.reminders.index', $event)->with('success', __('Règle supprimée.'));
+        return redirect()->route('evenements.rappels.index', $event)->with('success', __('Règle supprimée.'));
     }
 
     public function testEmail(Request $request, Event $event)

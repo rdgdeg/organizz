@@ -35,7 +35,7 @@ function submit() {
         alert('Le JSON des champs personnalisés est invalide.');
         return;
     }
-    form.patch(route('events.update', props.event.id));
+    form.patch(route('evenements.mettre_a_jour', props.event.slug));
 }
 </script>
 

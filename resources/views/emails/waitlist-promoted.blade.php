@@ -12,7 +12,7 @@
 <p>{{ __('Bonjour :name,', ['name' => $registration->firstname]) }}</p>
 <p>{{ __('Une place vient de se libérer pour le créneau suivant à l’événement « :title ». Votre inscription est maintenant confirmée.', ['title' => $event->title ?? '']) }}</p>
 <p><strong>{{ $registration->slot->date?->format('d/m/Y') }}</strong> — {{ substr((string) $registration->slot->start_time,0,5) }} – {{ substr((string) $registration->slot->end_time,0,5) }} — {{ $registration->slot->position->name }}</p>
-<p style="margin-top:16px;font-size:14px;"><a href="{{ url('/registration/'.$registration->token.'/cancel') }}" style="color:#2563eb;">{{ __('Annuler ce créneau') }}</a></p>
+<p style="margin-top:16px;font-size:14px;"><a href="{{ route('evenement_inscription.annuler', ['token' => $registration->token]) }}" style="color:#2563eb;">{{ __('Annuler ce créneau') }}</a></p>
 </td></tr>
 </table>
 </td></tr></table>

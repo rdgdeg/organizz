@@ -71,7 +71,7 @@ class EventController extends Controller
             'embed_token' => $embed,
         ]);
 
-        return redirect()->route('events.show', $event)->with('success', __('Événement créé.'));
+        return redirect()->route('evenements.montrer', $event)->with('success', __('Événement créé.'));
     }
 
     public function show(Request $request, Event $event): Response
@@ -164,9 +164,9 @@ class EventController extends Controller
                 'public_link_token' => $event->public_link_token,
                 'embed_token' => $event->embed_token,
                 'notify_organizer_on_registration' => $event->notify_organizer_on_registration,
-                'public_url' => url('/event/'.$event->slug),
-                'embed_url' => $event->embed_token ? url('/embed/'.$event->embed_token) : null,
-                'qr_url' => url('/event/'.$event->slug.'/qr.png'),
+                'public_url' => url('/evenement/'.$event->slug),
+                'embed_url' => $event->embed_token ? url('/integration/'.$event->embed_token) : null,
+                'qr_url' => url('/evenement/'.$event->slug.'/qr.png'),
                 'waitlist_enabled' => $event->waitlist_enabled,
                 'participant_edit_deadline_hours' => $event->participant_edit_deadline_hours,
                 'matching_enabled' => $event->matching_enabled,
@@ -195,6 +195,7 @@ class EventController extends Controller
         return Inertia::render('Organizer/Events/Edit', [
             'event' => [
                 'id' => $event->id,
+                'slug' => $event->slug,
                 'title' => $event->title,
                 'description' => $event->description,
                 'date_start' => $event->date_start?->toDateString(),
@@ -251,7 +252,7 @@ class EventController extends Controller
 
         $event->save();
 
-        return redirect()->route('events.show', $event)->with('success', __('Événement mis à jour.'));
+        return redirect()->route('evenements.montrer', $event)->with('success', __('Événement mis à jour.'));
     }
 
     public function destroy(Event $event)

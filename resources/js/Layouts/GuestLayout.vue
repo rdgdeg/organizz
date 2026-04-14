@@ -14,7 +14,7 @@ import { Link } from '@inertiajs/vue3';
             <div class="pointer-events-none absolute -right-16 top-24 h-72 w-72 rounded-full bg-ember-500/25 blur-3xl" />
             <div class="pointer-events-none absolute -left-10 bottom-10 h-56 w-56 rounded-full bg-brand-400/20 blur-3xl" />
             <div class="relative">
-                <Link href="/" class="inline-flex items-center gap-3 rounded-xl text-white/90 transition hover:text-white">
+                <Link :href="route('accueil')" class="inline-flex items-center gap-3 rounded-xl text-white/90 transition hover:text-white">
                     <ApplicationLogo variant="inverse" />
                     <span class="text-sm font-bold tracking-tight">Retour à l’accueil</span>
                 </Link>

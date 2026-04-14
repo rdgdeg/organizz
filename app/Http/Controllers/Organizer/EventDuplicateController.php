@@ -26,6 +26,6 @@ class EventDuplicateController extends Controller
             $validated['date_end'] ?? null,
         );
 
-        return redirect()->route('events.show', $copy)->with('success', __('Événement dupliqué (brouillon).'));
+        return redirect()->route('evenements.montrer', $copy)->with('success', __('Événement dupliqué (brouillon).'));
     }
 }

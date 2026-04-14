@@ -2,4 +2,4 @@
 
 {{ __('Une place s’est libérée pour votre créneau. Votre inscription est confirmée.') }}
 
-{{ url('/registration/'.$registration->token.'/cancel') }}
+{{ route('evenement_inscription.annuler', ['token' => $registration->token]) }}

@@ -83,7 +83,7 @@ class PositionController extends Controller
         $position = $event->positions()->create($validated);
         $this->slotGenerator->regenerate($position);
 
-        return redirect()->route('events.positions.index', $event)->with('success', __('Poste créé et créneaux générés.'));
+        return redirect()->route('evenements.postes.index', $event)->with('success', __('Poste créé et créneaux générés.'));
     }
 
     public function update(Request $request, Event $event, Position $position)
@@ -103,7 +103,7 @@ class PositionController extends Controller
 
         $position->update($validated);
 
-        return redirect()->route('events.positions.index', $event)->with(
+        return redirect()->route('evenements.postes.index', $event)->with(
             'success',
             __('Poste enregistré. Pour recalculer la grille horaire (durée, fenêtre), utilisez « Régénérer les créneaux ».')
         );
@@ -118,7 +118,7 @@ class PositionController extends Controller
 
         $position->delete();
 
-        return redirect()->route('events.positions.index', $event)->with('success', __('Poste supprimé.'));
+        return redirect()->route('evenements.postes.index', $event)->with('success', __('Poste supprimé.'));
     }
 
     public function regenerate(Event $event, Position $position)

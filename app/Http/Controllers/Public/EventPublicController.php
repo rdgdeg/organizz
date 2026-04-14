@@ -213,7 +213,7 @@ class EventPublicController extends Controller
             Mail::to($event->user->email)->queue(new OrganizerNewRegistrationMail($event, $regs));
         }
 
-        return redirect()->route('public.event.confirm', ['slug' => $slug, 'batch' => $batchId]);
+        return redirect()->route('public.evenement.confirmation', ['slug' => $slug, 'batch' => $batchId]);
     }
 
     public function confirm(string $slug, string $batch): View
@@ -234,7 +234,7 @@ class EventPublicController extends Controller
         return view('public.confirm', [
             'event' => $event,
             'registrations' => $regs,
-            'participant_portal_url' => $portal ? route('participant.portal', ['token' => $portal->token]) : null,
+            'participant_portal_url' => $portal ? route('participant.espace', ['token' => $portal->token]) : null,
         ]);
     }
 

@@ -10,6 +10,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Event extends Model
 {
+    /** URLs organisateur : /evenements/{slug} (accepte aussi l’ID pour les anciens liens). */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        if (is_numeric($value)) {
+            return static::query()->whereKey((int) $value)->firstOrFail();
+        }
+
+        return static::query()->where('slug', $value)->firstOrFail();
+    }
+
     protected $fillable = [
         'user_id',
         'title',

@@ -51,7 +51,7 @@ class VolunteerEventTest extends TestCase
             'max_volunteers' => 2,
         ]);
 
-        $response = $this->post(route('public.event.register', $event->slug), [
+        $response = $this->post(route('public.evenement.inscription', $event->slug), [
             'firstname' => 'Marie',
             'lastname' => 'Curie',
             'email' => 'marie@example.com',
@@ -111,7 +111,7 @@ class VolunteerEventTest extends TestCase
             'token' => (string) Str::uuid(),
         ]);
 
-        $this->get(route('registration.cancel', $reg->token))->assertOk();
+        $this->get(route('evenement_inscription.annuler', $reg->token))->assertOk();
         $reg->refresh();
         $this->assertNotNull($reg->cancelled_at);
     }
@@ -134,6 +134,6 @@ class VolunteerEventTest extends TestCase
             'public_link_token' => Str::random(40),
         ]);
 
-        $this->actingAs($other)->get(route('events.show', $event))->assertForbidden();
+        $this->actingAs($other)->get(route('evenements.montrer', $event))->assertForbidden();
     }
 }

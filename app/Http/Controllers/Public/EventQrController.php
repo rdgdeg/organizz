@@ -17,7 +17,7 @@ class EventQrController extends Controller
             abort(404);
         }
 
-        $url = route('public.event', ['slug' => $event->slug]);
+        $url = route('public.evenement', ['slug' => $event->slug]);
 
         $writer = new PngWriter;
         $result = $writer->write(new QrCode($url));

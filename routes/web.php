@@ -19,82 +19,97 @@ use App\Http\Controllers\Public\RegistrationTokenController;
 use App\Http\Controllers\UpgradeController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', LandingController::class)->name('landing');
+Route::get('/', LandingController::class)->name('accueil');
 
-Route::get('/event/{slug}', [EventPublicController::class, 'show'])->name('public.event');
-Route::post('/event/{slug}/register', [EventPublicController::class, 'register'])
+Route::get('/evenement/{slug}', [EventPublicController::class, 'show'])->name('public.evenement');
+Route::post('/evenement/{slug}/inscription', [EventPublicController::class, 'register'])
     ->middleware('throttle:10,1')
-    ->name('public.event.register');
-Route::get('/event/{slug}/confirmation/{batch}', [EventPublicController::class, 'confirm'])->name('public.event.confirm');
-Route::get('/event/{slug}/qr.png', EventQrController::class)->name('public.event.qr');
+    ->name('public.evenement.inscription');
+Route::get('/evenement/{slug}/confirmation/{batch}', [EventPublicController::class, 'confirm'])->name('public.evenement.confirmation');
+Route::get('/evenement/{slug}/qr.png', EventQrController::class)->name('public.evenement.qr');
 
-Route::get('/embed/{embed_token}', EmbedEventController::class)->name('public.event.embed');
+Route::get('/integration/{embed_token}', EmbedEventController::class)->name('integration.evenement');
 
-Route::get('/participant/{token}', [ParticipantPortalController::class, 'show'])->name('participant.portal');
-Route::post('/participant/{token}/cancel', [ParticipantPortalController::class, 'cancel'])->name('participant.portal.cancel');
+Route::get('/participant/{token}', [ParticipantPortalController::class, 'show'])->name('participant.espace');
+Route::post('/participant/{token}/annuler', [ParticipantPortalController::class, 'cancel'])->name('participant.annuler');
 
-Route::get('/registration/{token}/cancel', [RegistrationTokenController::class, 'cancel'])->name('registration.cancel');
-Route::get('/registration/{token}/confirm', [RegistrationTokenController::class, 'confirm'])->name('registration.confirm');
+Route::get('/inscription-evenement/{token}/annuler', [RegistrationTokenController::class, 'cancel'])->name('evenement_inscription.annuler');
+Route::get('/inscription-evenement/{token}/confirmer', [RegistrationTokenController::class, 'confirm'])->name('evenement_inscription.confirmer');
 
-Route::get('/dashboard', [EventController::class, 'index'])
+Route::get('/tableau-de-bord', [EventController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::get('/upgrade', UpgradeController::class)
+Route::get('/abonnement', UpgradeController::class)
     ->middleware(['auth', 'verified'])
     ->name('upgrade');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
-    Route::post('/events', [EventController::class, 'store'])
+    Route::get('/evenements/creer', [EventController::class, 'create'])->name('evenements.creer');
+    Route::post('/evenements', [EventController::class, 'store'])
         ->middleware('plan.limit:create_event')
-        ->name('events.store');
-    Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
-    Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
-    Route::patch('/events/{event}', [EventController::class, 'update'])->name('events.update');
-    Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
-    Route::post('/events/{event}/duplicate', EventDuplicateController::class)
+        ->name('evenements.enregistrer');
+    Route::get('/evenements/{event}', [EventController::class, 'show'])->name('evenements.montrer');
+    Route::get('/evenements/{event}/editer', [EventController::class, 'edit'])->name('evenements.editer');
+    Route::patch('/evenements/{event}', [EventController::class, 'update'])->name('evenements.mettre_a_jour');
+    Route::delete('/evenements/{event}', [EventController::class, 'destroy'])->name('evenements.supprimer');
+    Route::post('/evenements/{event}/dupliquer', EventDuplicateController::class)
         ->middleware('plan.limit:create_event')
-        ->name('events.duplicate');
+        ->name('evenements.dupliquer');
 
-    Route::get('/events/{event}/collaborators', [EventCollaboratorController::class, 'index'])->name('events.collaborators.index');
-    Route::post('/events/{event}/collaborators', [EventCollaboratorController::class, 'store'])->name('events.collaborators.store');
-    Route::delete('/events/{event}/collaborators/{user}', [EventCollaboratorController::class, 'destroy'])->name('events.collaborators.destroy');
+    Route::get('/evenements/{event}/coorganisateurs', [EventCollaboratorController::class, 'index'])->name('evenements.coorganisateurs.index');
+    Route::post('/evenements/{event}/coorganisateurs', [EventCollaboratorController::class, 'store'])->name('evenements.coorganisateurs.ajouter');
+    Route::delete('/evenements/{event}/coorganisateurs/{user}', [EventCollaboratorController::class, 'destroy'])->name('evenements.coorganisateurs.retirer');
 
-    Route::get('/events/{event}/export', ExportRegistrationsController::class)
+    Route::get('/evenements/{event}/export', ExportRegistrationsController::class)
         ->middleware('plan.limit:export_csv')
-        ->name('events.export');
+        ->name('evenements.export');
 
-    Route::get('/events/{event}/positions', [PositionController::class, 'index'])->name('events.positions.index');
-    Route::post('/events/{event}/positions', [PositionController::class, 'store'])
+    Route::get('/evenements/{event}/postes', [PositionController::class, 'index'])->name('evenements.postes.index');
+    Route::post('/evenements/{event}/postes', [PositionController::class, 'store'])
         ->middleware('plan.limit:create_position')
-        ->name('events.positions.store');
-    Route::patch('/events/{event}/positions/{position}', [PositionController::class, 'update'])->name('events.positions.update');
-    Route::delete('/events/{event}/positions/{position}', [PositionController::class, 'destroy'])->name('events.positions.destroy');
-    Route::post('/events/{event}/positions/{position}/regenerate', [PositionController::class, 'regenerate'])->name('events.positions.regenerate');
+        ->name('evenements.postes.enregistrer');
+    Route::patch('/evenements/{event}/postes/{position}', [PositionController::class, 'update'])->name('evenements.postes.modifier');
+    Route::delete('/evenements/{event}/postes/{position}', [PositionController::class, 'destroy'])->name('evenements.postes.supprimer');
+    Route::post('/evenements/{event}/postes/{position}/regenerer', [PositionController::class, 'regenerate'])->name('evenements.postes.regenerer');
 
-    Route::post('/events/{event}/slots', [SlotController::class, 'store'])->name('events.slots.store');
-    Route::patch('/events/{event}/slots/{slot}', [SlotController::class, 'update'])->name('events.slots.update');
-    Route::delete('/events/{event}/slots/{slot}', [SlotController::class, 'destroy'])->name('events.slots.destroy');
+    Route::post('/evenements/{event}/creneaux', [SlotController::class, 'store'])->name('evenements.creneaux.enregistrer');
+    Route::patch('/evenements/{event}/creneaux/{slot}', [SlotController::class, 'update'])->name('evenements.creneaux.modifier');
+    Route::delete('/evenements/{event}/creneaux/{slot}', [SlotController::class, 'destroy'])->name('evenements.creneaux.supprimer');
 
-    Route::get('/events/{event}/registrations', [RegistrationAdminController::class, 'index'])->name('events.registrations.index');
-    Route::delete('/events/{event}/registrations/{registration}', [RegistrationAdminController::class, 'destroy'])->name('events.registrations.destroy');
-    Route::post('/events/{event}/registrations/{registration}/recap', [RegistrationAdminController::class, 'sendRecap'])->name('events.registrations.recap');
-    Route::post('/events/{event}/registrations/{registration}/check-in', RegistrationCheckInController::class)->name('events.registrations.checkin');
+    Route::get('/evenements/{event}/inscriptions', [RegistrationAdminController::class, 'index'])->name('evenements.inscriptions.index');
+    Route::delete('/evenements/{event}/inscriptions/{registration}', [RegistrationAdminController::class, 'destroy'])->name('evenements.inscriptions.supprimer');
+    Route::post('/evenements/{event}/inscriptions/{registration}/recap', [RegistrationAdminController::class, 'sendRecap'])->name('evenements.inscriptions.recap');
+    Route::post('/evenements/{event}/inscriptions/{registration}/presence', RegistrationCheckInController::class)->name('evenements.inscriptions.presence');
 
-    Route::get('/events/{event}/reminders', [ReminderRuleController::class, 'index'])->name('events.reminders.index');
-    Route::post('/events/{event}/reminders', [ReminderRuleController::class, 'store'])
+    Route::get('/evenements/{event}/rappels', [ReminderRuleController::class, 'index'])->name('evenements.rappels.index');
+    Route::post('/evenements/{event}/rappels', [ReminderRuleController::class, 'store'])
         ->middleware('plan.limit:create_reminder')
-        ->name('events.reminders.store');
-    Route::patch('/events/{event}/reminders/{reminderRule}', [ReminderRuleController::class, 'update'])->name('events.reminders.update');
-    Route::delete('/events/{event}/reminders/{reminderRule}', [ReminderRuleController::class, 'destroy'])->name('events.reminders.destroy');
-    Route::post('/events/{event}/reminders/test', [ReminderRuleController::class, 'testEmail'])->name('events.reminders.test');
+        ->name('evenements.rappels.enregistrer');
+    Route::patch('/evenements/{event}/rappels/{reminderRule}', [ReminderRuleController::class, 'update'])->name('evenements.rappels.modifier');
+    Route::delete('/evenements/{event}/rappels/{reminderRule}', [ReminderRuleController::class, 'destroy'])->name('evenements.rappels.supprimer');
+    Route::post('/evenements/{event}/rappels/test', [ReminderRuleController::class, 'testEmail'])->name('evenements.rappels.test');
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profil', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profil', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Anciennes URLs (redirection 301)
+|--------------------------------------------------------------------------
+*/
+Route::permanentRedirect('/dashboard', '/tableau-de-bord');
+Route::permanentRedirect('/upgrade', '/abonnement');
+Route::get('/login', fn () => redirect('/connexion', 301));
+Route::get('/register', fn () => redirect('/inscription', 301));
+Route::get('/profile', fn () => redirect('/profil', 301));
+Route::get('/event/{slug}', fn (string $slug) => redirect()->route('public.evenement', $slug, 301))->where('slug', '[^/]+');
+Route::get('/embed/{embed_token}', fn (string $embed_token) => redirect()->route('integration.evenement', $embed_token, 301));
+Route::get('/events/create', fn () => redirect('/evenements/creer', 301));
+Route::get('/events/{path}', fn (string $path) => redirect('/evenements/'.$path, 301))->where('path', '.*');
 
 require __DIR__.'/auth.php';

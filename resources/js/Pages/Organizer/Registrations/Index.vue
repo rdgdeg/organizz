@@ -17,7 +17,7 @@ const status = ref(props.filters.status || 'active');
 
 function applyFilters() {
     router.get(
-        route('events.registrations.index', props.event.id),
+        route('evenements.inscriptions.index', props.event.slug),
         {
             position_id: positionId.value || undefined,
             day: day.value || undefined,
@@ -29,15 +29,15 @@ function applyFilters() {
 
 function cancelReg(id) {
     if (!confirm('Annuler cette inscription ?')) return;
-    router.delete(route('events.registrations.destroy', [props.event.id, id]));
+    router.delete(route('evenements.inscriptions.supprimer', [props.event.slug, id]));
 }
 
 function recap(id) {
-    router.post(route('events.registrations.recap', [props.event.id, id]));
+    router.post(route('evenements.inscriptions.recap', [props.event.slug, id]));
 }
 
 function toggleCheckin(id) {
-    router.post(route('events.registrations.checkin', [props.event.id, id]), {}, { preserveScroll: true });
+    router.post(route('evenements.inscriptions.presence', [props.event.slug, id]), {}, { preserveScroll: true });
 }
 </script>
 
@@ -49,7 +49,7 @@ function toggleCheckin(id) {
             <div class="flex flex-col gap-2">
                 <h2 class="text-xl font-semibold text-gray-800">Inscriptions — {{ event.title }}</h2>
                 <Link
-                    :href="route('events.show', event.id)"
+                    :href="route('evenements.montrer', event.slug)"
                     class="text-sm text-brand-700 hover:underline"
                 >
                     ← Retour événement

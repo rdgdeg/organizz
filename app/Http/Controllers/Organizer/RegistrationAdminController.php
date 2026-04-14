@@ -65,6 +65,7 @@ class RegistrationAdminController extends Controller
         return Inertia::render('Organizer/Registrations/Index', [
             'event' => [
                 'id' => $event->id,
+                'slug' => $event->slug,
                 'title' => $event->title,
             ],
             'filters' => [

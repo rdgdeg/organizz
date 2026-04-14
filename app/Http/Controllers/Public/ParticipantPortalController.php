@@ -67,6 +67,6 @@ class ParticipantPortalController extends Controller
             }
         });
 
-        return redirect()->route('participant.portal', ['token' => $token])->with('success', __('Créneau annulé.'));
+        return redirect()->route('participant.espace', ['token' => $token])->with('success', __('Créneau annulé.'));
     }
 }

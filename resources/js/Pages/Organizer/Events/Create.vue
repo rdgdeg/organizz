@@ -17,7 +17,7 @@ const form = useForm({
 });
 
 function submit() {
-    form.post(route('events.store'));
+    form.post(route('evenements.enregistrer'));
 }
 </script>
 

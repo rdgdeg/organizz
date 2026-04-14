@@ -1,6 +1,6 @@
 @php
-    $registerUrl = route('public.event.register', $event->slug);
-    $shareText = __('Salut ! On cherche des bénévoles pour :title — inscription ici :url', ['title' => $event->title, 'url' => route('public.event', $event->slug)]);
+    $registerUrl = route('public.evenement.inscription', $event->slug);
+    $shareText = __('Salut ! On cherche des bénévoles pour :title — inscription ici :url', ['title' => $event->title, 'url' => route('public.evenement', $event->slug)]);
     $cf = $event->custom_fields ?? [];
     if (! is_array($cf)) {
         $cf = [];
@@ -195,7 +195,7 @@
 (function () {
     var shareBtn = document.getElementById('organizz-share-btn');
     var text = @json($shareText);
-    var url = @json(route('public.event', $event->slug));
+    var url = @json(route('public.evenement', $event->slug));
     var copiedLabel = @json(__('Lien copié !'));
     var shareLabel = @json(__('Partager'));
     if (shareBtn) {

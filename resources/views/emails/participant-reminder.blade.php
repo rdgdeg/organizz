@@ -27,7 +27,7 @@
 @endforeach
 </table>
 @foreach ($registrations as $r)
-<p style="font-size:14px;"><a href="{{ url('/registration/'.$r->token.'/cancel') }}" style="color:#2563eb;">{{ __('Annuler ce créneau') }}</a></p>
+<p style="font-size:14px;"><a href="{{ route('evenement_inscription.annuler', ['token' => $r->token]) }}" style="color:#2563eb;">{{ __('Annuler ce créneau') }}</a></p>
 @endforeach
 @if ($organizerEmail)
 <p style="margin-top:16px;font-size:14px;">{{ __('Contact : :email', ['email' => $organizerEmail]) }}</p>

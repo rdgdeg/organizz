@@ -16,12 +16,12 @@ const createForm = useForm({
 });
 
 function createRule() {
-    createForm.post(route('events.reminders.store', props.event.id));
+    createForm.post(route('evenements.rappels.enregistrer', props.event.slug));
 }
 
 function updateRule(r) {
     router.patch(
-        route('events.reminders.update', [props.event.id, r.id]),
+        route('evenements.rappels.modifier', [props.event.slug, r.id]),
         {
             days_before: r.days_before,
             time_of_day: r.time_of_day,
@@ -33,11 +33,11 @@ function updateRule(r) {
 
 function destroyRule(id) {
     if (!confirm('Supprimer cette règle ?')) return;
-    router.delete(route('events.reminders.destroy', [props.event.id, id]));
+    router.delete(route('evenements.rappels.supprimer', [props.event.slug, id]));
 }
 
 function testEmail() {
-    router.post(route('events.reminders.test', props.event.id));
+    router.post(route('evenements.rappels.test', props.event.slug));
 }
 </script>
 
@@ -49,7 +49,7 @@ function testEmail() {
             <div class="flex flex-col gap-2">
                 <h2 class="text-xl font-semibold text-gray-800">Rappels — {{ event.title }}</h2>
                 <Link
-                    :href="route('events.show', event.id)"
+                    :href="route('evenements.montrer', event.slug)"
                     class="text-sm text-brand-700 hover:underline"
                 >
                     ← Retour événement

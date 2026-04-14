@@ -27,12 +27,12 @@ const createForm = useForm({
 });
 
 function createPosition() {
-    createForm.post(route('events.positions.store', props.event.id));
+    createForm.post(route('evenements.postes.enregistrer', props.event.slug));
 }
 
 function patchPosition(p) {
     router.patch(
-        route('events.positions.update', [props.event.id, p.id]),
+        route('evenements.postes.modifier', [props.event.slug, p.id]),
         {
             name: p.name,
             description: p.description ?? '',
@@ -46,7 +46,7 @@ function patchPosition(p) {
 
 function destroyPosition(id) {
     if (!confirm('Supprimer ce poste et ses créneaux ?')) return;
-    router.delete(route('events.positions.destroy', [props.event.id, id]));
+    router.delete(route('evenements.postes.supprimer', [props.event.slug, id]));
 }
 
 function regenerate(id) {
@@ -57,7 +57,7 @@ function regenerate(id) {
     ) {
         return;
     }
-    router.post(route('events.positions.regenerate', [props.event.id, id]), {}, { preserveScroll: true });
+    router.post(route('evenements.postes.regenerer', [props.event.slug, id]), {}, { preserveScroll: true });
 }
 
 function saveSlotMax(slotId, rawValue, booked) {
@@ -70,7 +70,7 @@ function saveSlotMax(slotId, rawValue, booked) {
         return;
     }
     router.patch(
-        route('events.slots.update', [props.event.id, slotId]),
+        route('evenements.creneaux.modifier', [props.event.slug, slotId]),
         { max_volunteers: v },
         { preserveScroll: true },
     );
@@ -85,7 +85,7 @@ function saveSlotMax(slotId, rawValue, booked) {
             <div class="flex flex-col gap-2">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">Postes — {{ event.title }}</h2>
                 <Link
-                    :href="route('events.show', event.id)"
+                    :href="route('evenements.montrer', event.slug)"
                     class="text-sm text-brand-700 hover:underline"
                 >
                     ← Retour événement

@@ -27,6 +27,7 @@ class EventCollaboratorController extends Controller
         return Inertia::render('Organizer/Events/Collaborators', [
             'event' => [
                 'id' => $event->id,
+                'slug' => $event->slug,
                 'title' => $event->title,
             ],
             'collaborators' => $rows,

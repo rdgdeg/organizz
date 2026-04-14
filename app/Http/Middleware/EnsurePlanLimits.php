@@ -36,7 +36,10 @@ class EnsurePlanLimits
         if ($type === 'create_position' || $type === 'create_reminder') {
             $event = $request->route('event');
             if (! $event instanceof Event) {
-                $event = Event::query()->findOrFail($request->route('event'));
+                $raw = $request->route('event');
+                $event = is_numeric($raw)
+                    ? Event::query()->findOrFail((int) $raw)
+                    : Event::query()->where('slug', $raw)->firstOrFail();
             }
             if (! Gate::forUser($user)->allows('configure', $event)) {
                 abort(403);

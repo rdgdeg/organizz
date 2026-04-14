@@ -38,7 +38,7 @@ const slotForm = useForm({
 });
 
 function addSlot() {
-    slotForm.post(route('events.slots.store', props.event.id), {
+    slotForm.post(route('evenements.creneaux.enregistrer', props.event.slug), {
         preserveScroll: true,
         onSuccess: () => slotForm.reset('date', 'start_time', 'end_time'),
     });
@@ -46,7 +46,7 @@ function addSlot() {
 
 function deleteSlot(slotId) {
     if (!confirm('Supprimer ce créneau ?')) return;
-    router.delete(route('events.slots.destroy', [props.event.id, slotId]), {
+    router.delete(route('evenements.creneaux.supprimer', [props.event.slug, slotId]), {
         preserveScroll: true,
     });
 }
@@ -68,7 +68,7 @@ function duplicateEvent() {
     ) {
         return;
     }
-    router.post(route('events.duplicate', props.event.id), {});
+    router.post(route('evenements.dupliquer', props.event.slug), {});
 }
 </script>
 
@@ -87,42 +87,42 @@ function duplicateEvent() {
                 <nav class="flex flex-wrap gap-2" aria-label="Actions événement">
                     <Link
                         v-if="permissions.configure"
-                        :href="route('events.edit', event.id)"
+                        :href="route('evenements.editer', event.slug)"
                         class="inline-flex items-center rounded-full border border-slate-200/90 bg-white/90 px-3.5 py-1.5 text-sm font-medium text-slate-800 shadow-sm transition hover:border-brand-200 hover:bg-brand-50/80"
                     >
                         Modifier
                     </Link>
                     <Link
                         v-if="permissions.configure"
-                        :href="route('events.positions.index', event.id)"
+                        :href="route('evenements.postes.index', event.slug)"
                         class="inline-flex items-center rounded-full border border-slate-200/90 bg-white/90 px-3.5 py-1.5 text-sm font-medium text-slate-800 shadow-sm transition hover:border-ember-200 hover:bg-ember-50/80"
                     >
                         Postes
                     </Link>
                     <Link
                         v-if="permissions.manageRegistrations"
-                        :href="route('events.registrations.index', event.id)"
+                        :href="route('evenements.inscriptions.index', event.slug)"
                         class="inline-flex items-center rounded-full border border-slate-200/90 bg-white/90 px-3.5 py-1.5 text-sm font-medium text-slate-800 shadow-sm transition hover:border-brand-200 hover:bg-brand-50/80"
                     >
                         Inscriptions
                     </Link>
                     <Link
                         v-if="permissions.configure"
-                        :href="route('events.reminders.index', event.id)"
+                        :href="route('evenements.rappels.index', event.slug)"
                         class="inline-flex items-center rounded-full border border-slate-200/90 bg-white/90 px-3.5 py-1.5 text-sm font-medium text-slate-800 shadow-sm transition hover:border-ember-200 hover:bg-ember-50/80"
                     >
                         Rappels
                     </Link>
                     <a
                         v-if="permissions.manageRegistrations"
-                        :href="route('events.export', event.id)"
+                        :href="route('evenements.export', event.slug)"
                         class="inline-flex items-center rounded-full border border-slate-200/90 bg-white/90 px-3.5 py-1.5 text-sm font-medium text-slate-800 shadow-sm transition hover:border-brand-200 hover:bg-brand-50/80"
                     >
                         Export CSV
                     </a>
                     <Link
                         v-if="permissions.manageCollaborators"
-                        :href="route('events.collaborators.index', event.id)"
+                        :href="route('evenements.coorganisateurs.index', event.slug)"
                         class="inline-flex items-center rounded-full border border-slate-200/90 bg-white/90 px-3.5 py-1.5 text-sm font-medium text-slate-800 shadow-sm transition hover:border-ember-200 hover:bg-ember-50/80"
                     >
                         Co-organisateurs
@@ -341,7 +341,7 @@ function duplicateEvent() {
                         Aucun poste. Ajoutez-en depuis
                         <Link
                             v-if="permissions.configure"
-                            :href="route('events.positions.index', event.id)"
+                            :href="route('evenements.postes.index', event.slug)"
                             class="font-medium text-brand-700 hover:underline"
                             >Postes</Link
                         >.
@@ -427,7 +427,7 @@ function duplicateEvent() {
                                     Aucun créneau — utilisez l’écran
                                     <Link
                                         v-if="permissions.configure"
-                                        :href="route('events.positions.index', event.id)"
+                                        :href="route('evenements.postes.index', event.slug)"
                                         class="font-medium text-brand-700 hover:underline"
                                         >Postes</Link
                                     >
