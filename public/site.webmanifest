@@ -1,0 +1,17 @@
+{
+  "name": "Organizz",
+  "short_name": "Organizz",
+  "description": "Inscriptions bénévoles — pensé pour le smartphone",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/organizz-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

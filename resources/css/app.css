@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        @apply scroll-smooth antialiased;
+    }
+
+    ::selection {
+        @apply bg-brand-200 text-brand-950;
+    }
+}
+
+@layer components {
+    .public-input {
+        /* text-base (16px) évite le zoom automatique iOS au focus ; zone tactile confortable */
+        @apply mt-1 min-h-[3rem] w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20;
+    }
+
+    .public-label {
+        @apply block text-sm font-medium text-slate-700;
+    }
+
+    .public-btn-primary {
+        @apply inline-flex min-h-[3rem] w-full items-center justify-center rounded-xl bg-brand-600 px-6 py-3.5 text-base font-semibold text-white shadow-soft transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 sm:w-auto sm:text-sm;
+    }
+
+    .public-btn-secondary {
+        @apply inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-brand-200 hover:bg-brand-50;
+    }
+
+    .public-btn-hero-outline {
+        @apply inline-flex items-center justify-center rounded-xl border border-white/25 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/20;
+    }
+
+    .landing-btn-primary {
+        @apply inline-flex items-center justify-center rounded-2xl bg-brand-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-600/20;
+    }
+
+    .landing-btn-secondary {
+        @apply inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-7 py-3.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:border-brand-200 hover:bg-brand-50;
+    }
+
+    .landing-btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-7 py-3.5 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-sm transition hover:border-brand-300 hover:bg-white;
+    }
+
+    .landing-mock-card {
+        @apply rounded-2xl border border-slate-100/80 bg-white shadow-[0_24px_48px_-12px_rgba(15,23,42,0.12),0_12px_24px_-8px_rgba(15,23,42,0.08)];
+    }
+
+    .landing-check {
+        @apply flex items-start gap-2 text-sm text-slate-600;
+    }
+
+    .public-card {
+        @apply rounded-2xl border border-slate-200/80 bg-white p-6 shadow-card sm:p-8;
+    }
+
+    .home-grid {
+        background-image: linear-gradient(rgb(248 250 252 / 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgb(248 250 252 / 0.06) 1px, transparent 1px);
+        background-size: 56px 56px;
+    }
+
+    .hero-animated-bg {
+        background: linear-gradient(-45deg, #0f172a, #1e3a8a, #2563eb, #1d4ed8, #172554);
+        background-size: 400% 400%;
+        animation: hero-gradient 20s ease infinite;
+    }
+
+    .public-btn-hero-primary {
+        @apply inline-flex items-center justify-center rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-brand-700 shadow-glow transition hover:bg-blue-50 hover:shadow-lg;
+    }
+
+    details.landing-nav-mobile summary {
+        list-style: none;
+    }
+    details.landing-nav-mobile summary::-webkit-details-marker {
+        display: none;
+    }
+}
+
+@keyframes hero-gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
