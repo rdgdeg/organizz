@@ -74,6 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/events/{event}/positions/{position}/regenerate', [PositionController::class, 'regenerate'])->name('events.positions.regenerate');
 
     Route::post('/events/{event}/slots', [SlotController::class, 'store'])->name('events.slots.store');
+    Route::patch('/events/{event}/slots/{slot}', [SlotController::class, 'update'])->name('events.slots.update');
     Route::delete('/events/{event}/slots/{slot}', [SlotController::class, 'destroy'])->name('events.slots.destroy');
 
     Route::get('/events/{event}/registrations', [RegistrationAdminController::class, 'index'])->name('events.registrations.index');

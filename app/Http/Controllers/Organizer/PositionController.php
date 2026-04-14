@@ -16,11 +16,31 @@ class PositionController extends Controller
         private SlotGeneratorService $slotGenerator,
     ) {}
 
-    public function index(Event $event): Response
+    public function index(Request $request, Event $event): Response
     {
         $this->authorize('view', $event);
 
+        $user = $request->user();
+
         $positions = $event->positions()->orderBy('id')->get()->map(function (Position $p) {
+            $slots = $p->slots()
+                ->withCount([
+                    'registrations as booked' => function ($q): void {
+                        $q->whereNull('cancelled_at')->where('waitlist', false);
+                    },
+                ])
+                ->orderBy('date')
+                ->orderBy('start_time')
+                ->get()
+                ->map(fn ($s) => [
+                    'id' => $s->id,
+                    'date' => $s->date?->toDateString(),
+                    'start_time' => is_string($s->start_time) ? substr($s->start_time, 0, 5) : substr((string) $s->start_time, 0, 5),
+                    'end_time' => is_string($s->end_time) ? substr($s->end_time, 0, 5) : substr((string) $s->end_time, 0, 5),
+                    'max_volunteers' => $s->max_volunteers,
+                    'booked' => (int) $s->booked,
+                ]);
+
             return [
                 'id' => $p->id,
                 'name' => $p->name,
@@ -28,7 +48,8 @@ class PositionController extends Controller
                 'color' => $p->color,
                 'slot_duration_minutes' => $p->slot_duration_minutes,
                 'required_per_slot' => $p->required_per_slot,
-                'slots_count' => $p->slots()->count(),
+                'slots_count' => $slots->count(),
+                'slots' => $slots,
             ];
         });
 
@@ -41,6 +62,9 @@ class PositionController extends Controller
                 'date_end' => $event->date_end?->toDateString(),
             ],
             'positions' => $positions,
+            'permissions' => [
+                'configure' => $user->can('configure', $event),
+            ],
         ]);
     }
 
@@ -64,7 +88,7 @@ class PositionController extends Controller
 
     public function update(Request $request, Event $event, Position $position)
     {
-        $this->authorize('update', $event);
+        $this->authorize('configure', $event);
         if ($position->event_id !== $event->id) {
             abort(404);
         }
@@ -78,9 +102,11 @@ class PositionController extends Controller
         ]);
 
         $position->update($validated);
-        $this->slotGenerator->regenerate($position);
 
-        return redirect()->route('events.positions.index', $event)->with('success', __('Poste mis à jour et créneaux régénérés.'));
+        return redirect()->route('events.positions.index', $event)->with(
+            'success',
+            __('Poste enregistré. Pour recalculer la grille horaire (durée, fenêtre), utilisez « Régénérer les créneaux ».')
+        );
     }
 
     public function destroy(Event $event, Position $position)

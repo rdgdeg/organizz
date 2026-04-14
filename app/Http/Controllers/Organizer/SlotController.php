@@ -60,4 +60,30 @@ class SlotController extends Controller
 
         return back()->with('success', __('Créneau supprimé.'));
     }
+
+    public function update(Request $request, Event $event, Slot $slot)
+    {
+        $this->authorize('configure', $event);
+
+        $slot->load('position');
+        if ($slot->position->event_id !== $event->id) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'max_volunteers' => ['required', 'integer', 'min:1', 'max:500'],
+        ]);
+
+        $booked = $slot->activeRegistrations()->count();
+        if ($validated['max_volunteers'] < $booked) {
+            return back()->withErrors([
+                'max_volunteers' => __('Au moins :n place(s) déjà prise(s) ; augmentez ou gardez ce minimum.', ['n' => $booked]),
+            ]);
+        }
+
+        $slot->max_volunteers = $validated['max_volunteers'];
+        $slot->save();
+
+        return back()->with('success', __('Nombre de places mis à jour pour ce créneau.'));
+    }
 }
