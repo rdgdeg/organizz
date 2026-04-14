@@ -209,14 +209,17 @@ function duplicateEvent() {
                     <SecondaryButton type="button" @click="duplicateEvent">Dupliquer l’événement</SecondaryButton>
                 </div>
 
-                <div v-if="permissions.configure" class="rounded-lg bg-white p-6 shadow">
-                    <h3 class="text-lg font-medium">Ajouter un créneau manuellement</h3>
-                    <form class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5" @submit.prevent="addSlot">
+                <div v-if="permissions.configure" class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900">Ajouter un créneau manuellement</h3>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Rattaché à un poste ; utile pour un horaire exceptionnel.
+                    </p>
+                    <form class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-6" @submit.prevent="addSlot">
                         <div>
-                            <label class="text-sm text-gray-700">Poste</label>
+                            <label class="text-sm font-medium text-gray-700">Poste</label>
                             <select
                                 v-model="slotForm.position_id"
-                                class="mt-1 block w-full rounded-md border-gray-300"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                                 required
                             >
                                 <option v-for="p in positions" :key="p.id" :value="p.id">
@@ -226,90 +229,144 @@ function duplicateEvent() {
                             <InputError class="mt-1" :message="slotForm.errors.position_id" />
                         </div>
                         <div>
-                            <label class="text-sm text-gray-700">Date</label>
+                            <label class="text-sm font-medium text-gray-700">Date</label>
                             <input
                                 v-model="slotForm.date"
                                 type="date"
-                                class="mt-1 block w-full rounded-md border-gray-300"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                                 required
                             />
                             <InputError class="mt-1" :message="slotForm.errors.date" />
                         </div>
                         <div>
-                            <label class="text-sm text-gray-700">Début</label>
+                            <label class="text-sm font-medium text-gray-700">Début</label>
                             <input
                                 v-model="slotForm.start_time"
                                 type="time"
-                                class="mt-1 block w-full rounded-md border-gray-300"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                                 required
                             />
                             <InputError class="mt-1" :message="slotForm.errors.start_time" />
                         </div>
                         <div>
-                            <label class="text-sm text-gray-700">Fin</label>
+                            <label class="text-sm font-medium text-gray-700">Fin</label>
                             <input
                                 v-model="slotForm.end_time"
                                 type="time"
-                                class="mt-1 block w-full rounded-md border-gray-300"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                                 required
                             />
                             <InputError class="mt-1" :message="slotForm.errors.end_time" />
                         </div>
-                        <div class="flex items-end">
+                        <div class="flex items-end lg:col-span-2">
                             <PrimaryButton :disabled="slotForm.processing">Ajouter</PrimaryButton>
                         </div>
                     </form>
                 </div>
 
-                <div class="space-y-6">
-                    <div
-                        v-for="pos in positions"
-                        :key="pos.id"
-                        class="rounded-lg bg-white p-6 shadow"
-                    >
-                        <div class="flex flex-wrap items-center justify-between gap-2">
-                            <h3 class="text-lg font-medium">
+                <div>
+                    <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                        Créneaux par poste
+                    </h3>
+                    <p class="mb-4 text-sm text-gray-600">
+                        Ouvrez une carte pour afficher les horaires — évite de faire défiler une longue liste.
+                    </p>
+
+                    <div v-if="!positions.length" class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-8 text-center text-gray-600">
+                        Aucun poste. Ajoutez-en depuis
+                        <Link
+                            v-if="permissions.configure"
+                            :href="route('events.positions.index', event.id)"
+                            class="font-medium text-brand-700 hover:underline"
+                            >Postes</Link
+                        >.
+                    </div>
+
+                    <div v-else class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        <details
+                            v-for="(pos, idx) in positions"
+                            :key="pos.id"
+                            class="group rounded-2xl border border-slate-200 bg-white shadow-sm open:border-brand-400 open:ring-2 open:ring-brand-100"
+                            :open="idx === 0"
+                        >
+                            <summary
+                                class="flex cursor-pointer list-none items-start gap-3 p-4 [&::-webkit-details-marker]:hidden"
+                            >
                                 <span
-                                    class="me-2 inline-block h-3 w-3 rounded-full align-middle"
+                                    class="mt-1 h-10 w-1.5 shrink-0 rounded-full shadow-inner"
                                     :style="{ background: pos.color }"
                                 />
-                                {{ pos.name }}
-                            </h3>
-                            <p v-if="pos.stats.critical_slots" class="text-sm text-amber-700">
-                                {{ pos.stats.critical_slots }} créneau(x) sous 50%
-                            </p>
-                        </div>
-                        <ul class="mt-4 space-y-3">
-                            <li
-                                v-for="s in pos.slots"
-                                :key="s.id"
-                                class="flex flex-col gap-2 rounded-md border border-slate-100 p-3 sm:flex-row sm:items-center sm:justify-between"
-                            >
-                                <div class="text-sm">
-                                    <span class="font-medium">{{ s.date }}</span>
-                                    · {{ String(s.start_time).slice(0, 5) }}–{{
-                                        String(s.end_time).slice(0, 5)
-                                    }}
-                                    · {{ s.active_count }}/{{ s.max_volunteers }} inscrits
+                                <div class="min-w-0 flex-1 text-left">
+                                    <p class="text-lg font-semibold leading-tight text-gray-900">{{ pos.name }}</p>
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        {{ pos.slots.length }} créneau(x)
+                                        <span v-if="pos.stats.critical_slots" class="font-medium text-amber-700">
+                                            · {{ pos.stats.critical_slots }} sous 50&nbsp;%
+                                        </span>
+                                    </p>
                                 </div>
-                                <div class="h-2 w-full max-w-xs rounded bg-gray-200 sm:mx-4">
-                                    <div
-                                        class="h-2 rounded bg-brand-500"
-                                        :style="{ width: Math.min(100, s.percent) + '%' }"
-                                    />
-                                </div>
-                                <SecondaryButton
-                                    v-if="permissions.configure"
-                                    type="button"
-                                    @click="deleteSlot(s.id)"
+                                <span
+                                    class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 group-open:hidden"
                                 >
-                                    Supprimer
-                                </SecondaryButton>
-                            </li>
-                            <li v-if="!pos.slots.length" class="text-sm text-gray-500">
-                                Aucun créneau — créez un poste ou régénérez depuis l’écran Postes.
-                            </li>
-                        </ul>
+                                    Ouvrir
+                                </span>
+                                <span
+                                    class="hidden shrink-0 rounded-full bg-brand-100 px-2 py-1 text-xs font-medium text-brand-800 group-open:inline"
+                                >
+                                    Fermer
+                                </span>
+                            </summary>
+
+                            <div class="border-t border-slate-100 px-3 pb-4 pt-2">
+                                <ul v-if="pos.slots.length" class="max-h-[min(420px,55vh)] space-y-2 overflow-y-auto pr-1">
+                                    <li
+                                        v-for="s in pos.slots"
+                                        :key="s.id"
+                                        class="rounded-lg border border-slate-100 bg-slate-50/80 p-3"
+                                    >
+                                        <div
+                                            class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+                                        >
+                                            <div class="min-w-0 text-sm text-gray-800">
+                                                <span class="font-medium tabular-nums">{{ s.date }}</span>
+                                                <span class="text-gray-600">
+                                                    · {{ String(s.start_time).slice(0, 5) }}–{{
+                                                        String(s.end_time).slice(0, 5)
+                                                    }}
+                                                    · {{ s.active_count }}/{{ s.max_volunteers }} inscrits
+                                                </span>
+                                            </div>
+                                            <div class="flex shrink-0 items-center gap-3">
+                                                <div class="h-2 w-full min-w-[6rem] rounded bg-gray-200 sm:w-28">
+                                                    <div
+                                                        class="h-2 rounded bg-brand-500 transition-all"
+                                                        :style="{ width: Math.min(100, s.percent) + '%' }"
+                                                    />
+                                                </div>
+                                                <SecondaryButton
+                                                    v-if="permissions.configure"
+                                                    type="button"
+                                                    class="!py-1.5 text-xs"
+                                                    @click="deleteSlot(s.id)"
+                                                >
+                                                    Supprimer
+                                                </SecondaryButton>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <p v-else class="px-1 py-4 text-sm text-gray-500">
+                                    Aucun créneau — utilisez l’écran
+                                    <Link
+                                        v-if="permissions.configure"
+                                        :href="route('events.positions.index', event.id)"
+                                        class="font-medium text-brand-700 hover:underline"
+                                        >Postes</Link
+                                    >
+                                    pour générer la grille.
+                                </p>
+                            </div>
+                        </details>
                     </div>
                 </div>
             </div>
