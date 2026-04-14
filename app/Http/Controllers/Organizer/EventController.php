@@ -74,7 +74,7 @@ class EventController extends Controller
         return redirect()->route('events.show', $event)->with('success', __('Événement créé.'));
     }
 
-    public function show(Event $event): Response
+    public function show(Request $request, Event $event): Response
     {
         $this->authorize('view', $event);
 
