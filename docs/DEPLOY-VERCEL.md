@@ -5,8 +5,20 @@ Ce projet peut tourner en local et sur Vercel.
 ## 1) Prerequis Vercel
 
 - Le repo contient deja:
-  - `vercel.json` avec runtime PHP (`vercel-php`)
+  - `vercel.json` avec runtime PHP (`vercel-php` via `functions`, pas seulement des fichiers statiques)
   - `api/index.php` qui delegue vers `public/index.php`
+
+### Si le navigateur affiche ou telecharge le code PHP (`public/index.php`)
+
+Vercel sert alors le dossier `public` comme **site statique** : les fichiers `.php` ne sont pas executes.
+
+1. Ouvre **Project Settings → General → Build & Development Settings**.
+2. **Output Directory** : laisse le champ **vide** (supprime `public` s’il est renseigne). Le deploiement doit inclure tout le projet + la fonction serverless `api/index.php`, pas uniquement le contenu de `public`.
+3. **Framework Preset** : `Other` (ou rien qui force un export statique vers `public`).
+4. **Root Directory** : racine du repo (ou le dossier ou se trouvent `vercel.json` et `composer.json`).
+5. Redeploie (**Deployments → … → Redeploy**).
+
+Sans ca, l’URL `/` peut servir `public/index.php` comme fichier brut au lieu de passer par `api/index.php` (runtime PHP).
 
 ## 2) Variables d'environnement a definir sur Vercel
 
