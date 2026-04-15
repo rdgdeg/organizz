@@ -33,6 +33,7 @@ class EventDuplicatorService
             'date_end' => $end,
             'daily_window_start' => $source->daily_window_start,
             'daily_window_end' => $source->daily_window_end,
+            'day_schedules' => $source->day_schedules,
             'status' => 'open',
             'registration_enabled' => true,
             'public_link_token' => $token,

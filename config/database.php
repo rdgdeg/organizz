@@ -3,6 +3,21 @@
 use Illuminate\Support\Str;
 use Pdo\Mysql;
 
+/*
+| Sur Vercel (serverless), un fichier SQLite embarqué n'est pas utilisable.
+| Sans DB_CONNECTION : connexion supabase si SUPABASE_DB_URL ou VERCEL, sinon sqlite (local).
+*/
+$dbDefault = env('DB_CONNECTION');
+if ($dbDefault === null || $dbDefault === '') {
+    if (env('SUPABASE_DB_URL')) {
+        $dbDefault = 'supabase';
+    } elseif (getenv('VERCEL') === '1' || env('VERCEL')) {
+        $dbDefault = 'supabase';
+    } else {
+        $dbDefault = 'sqlite';
+    }
+}
+
 return [
 
     /*
@@ -17,7 +32,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => $dbDefault,
 
     /*
     |--------------------------------------------------------------------------

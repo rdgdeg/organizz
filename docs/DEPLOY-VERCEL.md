@@ -34,12 +34,15 @@ Configurer ces variables dans **Project Settings > Environment Variables**:
 - `CACHE_STORE=array`
 - `QUEUE_CONNECTION=sync`
 
-### Base Supabase
+### Base Supabase (obligatoire en production serverless)
 
-- `DB_CONNECTION=supabase`
+SQLite ne fonctionne pas sur Vercel (pas de fichier persistant). Définir au minimum :
+
 - `SUPABASE_DB_URL=postgresql://postgres:[MOT_DE_PASSE]@db.[PROJECT_REF].supabase.co:5432/postgres?sslmode=require`
 
-Alternative: renseigner `SUPABASE_DB_HOST`, `SUPABASE_DB_PORT`, `SUPABASE_DB_DATABASE`, `SUPABASE_DB_USERNAME`, `SUPABASE_DB_PASSWORD`.
+Sans `DB_CONNECTION`, l’application choisit automatiquement la connexion `supabase` si `SUPABASE_DB_URL` ou `VERCEL` est défini (`config/database.php`).
+
+Alternative : `DB_CONNECTION=supabase` et renseigner `SUPABASE_DB_HOST`, `SUPABASE_DB_PORT`, `SUPABASE_DB_DATABASE`, `SUPABASE_DB_USERNAME`, `SUPABASE_DB_PASSWORD`.
 
 ## 3) Migrations
 

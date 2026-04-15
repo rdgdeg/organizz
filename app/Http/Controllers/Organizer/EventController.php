@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Registration;
 use App\Models\Slot;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -56,7 +58,11 @@ class EventController extends Controller
             'date_end' => ['required', 'date', 'after_or_equal:date_start'],
             'daily_window_start' => ['nullable', 'date_format:H:i'],
             'daily_window_end' => ['nullable', 'date_format:H:i'],
+            'use_per_day_schedule' => ['sometimes', 'boolean'],
+            'day_schedules' => ['nullable', 'array'],
         ]);
+
+        $daySchedules = $this->normalizeDaySchedules($request, $validated['date_start'], $validated['date_end']);
 
         $slug = $this->uniqueSlug($validated['title']);
         $token = $this->uniquePublicToken();
@@ -73,6 +79,7 @@ class EventController extends Controller
             'date_end' => $validated['date_end'],
             'daily_window_start' => ($validated['daily_window_start'] ?? '08:00').':00',
             'daily_window_end' => ($validated['daily_window_end'] ?? '20:00').':00',
+            'day_schedules' => $daySchedules,
             'status' => 'open',
             'registration_enabled' => true,
             'public_link_token' => $token,
@@ -232,6 +239,7 @@ class EventController extends Controller
                 'date_end' => $event->date_end?->toDateString(),
                 'daily_window_start' => substr((string) $event->daily_window_start, 0, 5),
                 'daily_window_end' => substr((string) $event->daily_window_end, 0, 5),
+                'day_schedules' => $event->day_schedules,
                 'status' => $event->status,
                 'notify_organizer_on_registration' => $event->notify_organizer_on_registration,
                 'waitlist_enabled' => $event->waitlist_enabled,
@@ -283,7 +291,11 @@ class EventController extends Controller
             'participant_edit_deadline_hours' => ['required', 'integer', 'min:1', 'max:720'],
             'matching_enabled' => ['boolean'],
             'custom_fields' => ['nullable', 'array'],
+            'use_per_day_schedule' => ['sometimes', 'boolean'],
+            'day_schedules' => ['nullable', 'array'],
         ]);
+
+        $daySchedules = $this->normalizeDaySchedules($request, $validated['date_start'], $validated['date_end']);
 
         $event->fill([
             'title' => $validated['title'],
@@ -295,6 +307,7 @@ class EventController extends Controller
             'date_end' => $validated['date_end'],
             'daily_window_start' => ($validated['daily_window_start'] ?? '08:00').':00',
             'daily_window_end' => ($validated['daily_window_end'] ?? '20:00').':00',
+            'day_schedules' => $daySchedules,
             'status' => $validated['status'],
             'registration_enabled' => (bool) ($validated['registration_enabled'] ?? true),
             'notify_organizer_on_registration' => (bool) ($validated['notify_organizer_on_registration'] ?? false),
@@ -356,5 +369,118 @@ class EventController extends Controller
         } while (Event::query()->where('embed_token', $token)->exists());
 
         return $token;
+    }
+
+    /**
+     * Planning par jour (multi-jours) : null = même fenêtre quotidienne pour chaque jour.
+     *
+     * @return array<int, array{date: string, enabled: bool, window_start: ?string, window_end: ?string}>|null
+     */
+    private function normalizeDaySchedules(Request $request, string $dateStart, string $dateEnd): ?array
+    {
+        if (! $request->boolean('use_per_day_schedule')) {
+            return null;
+        }
+
+        $start = Carbon::parse($dateStart)->startOfDay();
+        $end = Carbon::parse($dateEnd)->startOfDay();
+        if ($start->gt($end)) {
+            return null;
+        }
+
+        $allowed = [];
+        for ($d = $start->copy(); $d->lte($end); $d->addDay()) {
+            $allowed[] = $d->toDateString();
+        }
+
+        $rows = $request->input('day_schedules');
+        if (! is_array($rows) || $rows === []) {
+            throw ValidationException::withMessages([
+                'day_schedules' => __('Indiquez le planning par jour ou désactivez cette option.'),
+            ]);
+        }
+
+        if (count($rows) !== count($allowed)) {
+            throw ValidationException::withMessages([
+                'day_schedules' => __('Le nombre de jours ne correspond pas à la période de l’événement.'),
+            ]);
+        }
+
+        $out = [];
+        foreach ($rows as $i => $row) {
+            if (! is_array($row)) {
+                throw ValidationException::withMessages([
+                    'day_schedules' => __('Données de planning invalides.'),
+                ]);
+            }
+            $date = $row['date'] ?? null;
+            if (! is_string($date) || ! in_array($date, $allowed, true)) {
+                throw ValidationException::withMessages([
+                    "day_schedules.{$i}.date" => __('Date invalide dans le planning.'),
+                ]);
+            }
+            $enabled = filter_var($row['enabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
+            $ws = $row['window_start'] ?? null;
+            $we = $row['window_end'] ?? null;
+            if ($enabled) {
+                if (empty($ws) || empty($we)) {
+                    throw ValidationException::withMessages([
+                        "day_schedules.{$i}.window_start" => __('Indiquez le début et la fin pour chaque jour activé.'),
+                    ]);
+                }
+                try {
+                    $wsNorm = Carbon::createFromFormat('H:i', substr((string) $ws, 0, 5))->format('H:i');
+                    $weNorm = Carbon::createFromFormat('H:i', substr((string) $we, 0, 5))->format('H:i');
+                } catch (\Throwable) {
+                    throw ValidationException::withMessages([
+                        "day_schedules.{$i}.window_start" => __('Format d’heure invalide (HH:MM).'),
+                    ]);
+                }
+                $sMin = $this->timeToMinutesFromString($wsNorm.':00');
+                $eMin = $this->timeToMinutesFromString($weNorm.':00');
+                if ($eMin <= $sMin) {
+                    throw ValidationException::withMessages([
+                        "day_schedules.{$i}.window_end" => __('La fin doit être après le début.'),
+                    ]);
+                }
+                $out[] = [
+                    'date' => $date,
+                    'enabled' => true,
+                    'window_start' => $wsNorm,
+                    'window_end' => $weNorm,
+                ];
+            } else {
+                $out[] = [
+                    'date' => $date,
+                    'enabled' => false,
+                    'window_start' => null,
+                    'window_end' => null,
+                ];
+            }
+        }
+
+        usort($out, fn ($a, $b) => strcmp($a['date'], $b['date']));
+        $sortedDates = array_column($out, 'date');
+        if ($sortedDates !== $allowed) {
+            throw ValidationException::withMessages([
+                'day_schedules' => __('Chaque jour de la période doit apparaître une fois dans le planning.'),
+            ]);
+        }
+
+        return $out;
+    }
+
+    private function timeToMinutesFromString(string $time): int
+    {
+        $time = trim($time);
+        if (strlen($time) >= 8) {
+            $time = substr($time, 0, 8);
+        }
+        $parts = explode(':', $time);
+        $h = (int) ($parts[0] ?? 0);
+        $m = (int) ($parts[1] ?? 0);
+        $s = (int) ($parts[2] ?? 0);
+
+        return $h * 60 + $m + (int) round($s / 60);
     }
 }

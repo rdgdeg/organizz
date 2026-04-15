@@ -4,6 +4,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { useDaySchedules } from '@/composables/useDaySchedules';
 import { Head, useForm } from '@inertiajs/vue3';
 
 const form = useForm({
@@ -18,8 +19,10 @@ const form = useForm({
     daily_window_end: '20:00',
 });
 
+const { usePerDay, daySchedules, isMultiDay, appendToFormPayload } = useDaySchedules(form, null);
+
 function submit() {
-    form.post(route('evenements.enregistrer'));
+    form.transform((data) => appendToFormPayload(data)).post(route('evenements.enregistrer'));
 }
 </script>
 
@@ -129,6 +132,56 @@ function submit() {
                                 type="time"
                                 class="mt-1 block w-full"
                             />
+                        </div>
+                    </div>
+                    <div
+                        v-if="isMultiDay"
+                        class="rounded-lg border border-slate-200 bg-slate-50/80 p-4"
+                    >
+                        <label class="flex cursor-pointer items-start gap-3 text-sm text-slate-800">
+                            <input
+                                v-model="usePerDay"
+                                type="checkbox"
+                                class="mt-0.5 rounded border-slate-300 text-brand-600"
+                            />
+                            <span>
+                                <span class="font-medium">Horaires différents selon les jours</span>
+                                <span class="mt-1 block text-xs font-normal text-slate-600">
+                                    Décochez pour la même fenêtre chaque jour. Sinon, désactivez un jour pour ne
+                                    générer aucun créneau ce jour-là.
+                                </span>
+                            </span>
+                        </label>
+                        <div v-if="usePerDay && daySchedules.length" class="mt-4 space-y-3">
+                            <div
+                                v-for="row in daySchedules"
+                                :key="row.date"
+                                class="flex flex-col gap-2 rounded-md border border-white bg-white p-3 sm:flex-row sm:items-center sm:gap-4"
+                            >
+                                <label class="flex min-w-[10rem] items-center gap-2 text-sm">
+                                    <input
+                                        v-model="row.enabled"
+                                        type="checkbox"
+                                        class="rounded border-slate-300 text-brand-600"
+                                    />
+                                    <span class="font-medium">{{ row.date }}</span>
+                                </label>
+                                <div class="flex flex-1 flex-wrap items-center gap-2">
+                                    <TextInput
+                                        v-model="row.window_start"
+                                        type="time"
+                                        class="w-36"
+                                        :disabled="!row.enabled"
+                                    />
+                                    <span class="text-slate-500">→</span>
+                                    <TextInput
+                                        v-model="row.window_end"
+                                        type="time"
+                                        class="w-36"
+                                        :disabled="!row.enabled"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <p class="text-sm text-slate-600">
