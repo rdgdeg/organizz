@@ -48,6 +48,8 @@ Sans `DB_CONNECTION`, l’application choisit automatiquement :
 
 **Important :** ne pas s’appuyer sur la variable système `VERCEL` seule : sans URL de base, il faut absolument ajouter `SUPABASE_DB_URL` ou `DATABASE_URL` dans les variables du projet.
 
+**Ne pas laisser `DB_CONNECTION=sqlite` sur Vercel** (valeur par défaut du `.env` local) : même avec une URL Postgres renseignée, cela forçait SQLite jusqu’à correction ; la config ignore désormais `sqlite` sur Vercel pour repasser par la détection d’URL. Tu peux aussi **supprimer** la variable `DB_CONNECTION` sur Vercel ou la mettre à `supabase` / `pgsql`.
+
 Alternative : `DB_CONNECTION=supabase` et renseigner `SUPABASE_DB_HOST`, `SUPABASE_DB_PORT`, `SUPABASE_DB_DATABASE`, `SUPABASE_DB_USERNAME`, `SUPABASE_DB_PASSWORD`.
 
 ## 3) Migrations

@@ -10,13 +10,22 @@ use Pdo\Mysql;
 | - sqlite sinon (local uniquement — pas de fichier persistant sur Vercel).
 |
 | Ne pas forcer « supabase » sur VERCEL sans URL : la config retombait sur 127.0.0.1:5432.
+|
+| Sur Vercel, ignorer DB_CONNECTION=sqlite (souvent copié depuis .env local) : le fichier n’existe pas sur
+| serverless ; on repasse alors par la détection d’URL Postgres / Supabase ci-dessous.
 */
 $postgresUrl = env('DB_URL')
     ?: env('DATABASE_URL')
     ?: env('POSTGRES_URL')
     ?: env('POSTGRES_PRISMA_URL');
 
+$onVercel = getenv('VERCEL') === '1' || env('VERCEL');
+
 $dbDefault = env('DB_CONNECTION');
+if ($onVercel && strtolower((string) ($dbDefault ?? '')) === 'sqlite') {
+    $dbDefault = null;
+}
+
 if ($dbDefault === null || $dbDefault === '') {
     if (env('SUPABASE_DB_URL')) {
         $dbDefault = 'supabase';
