@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Organizer;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Registration;
+use App\Models\Slot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -27,6 +28,7 @@ class EventController extends Controller
                 'title' => $e->title,
                 'slug' => $e->slug,
                 'status' => $e->status,
+                'registration_enabled' => $e->registration_enabled,
                 'date_start' => $e->date_start?->toDateString(),
                 'date_end' => $e->date_end?->toDateString(),
                 'public_link_token' => $e->public_link_token,
@@ -47,11 +49,13 @@ class EventController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'additional_info' => ['nullable', 'string'],
+            'recommendations' => ['nullable', 'string'],
+            'practical_details' => ['nullable', 'string'],
             'date_start' => ['required', 'date'],
             'date_end' => ['required', 'date', 'after_or_equal:date_start'],
             'daily_window_start' => ['nullable', 'date_format:H:i'],
             'daily_window_end' => ['nullable', 'date_format:H:i'],
-            'status' => ['required', 'in:draft,open,closed,archived'],
         ]);
 
         $slug = $this->uniqueSlug($validated['title']);
@@ -61,12 +65,16 @@ class EventController extends Controller
         $event = $request->user()->events()->create([
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'additional_info' => $validated['additional_info'] ?? null,
+            'recommendations' => $validated['recommendations'] ?? null,
+            'practical_details' => $validated['practical_details'] ?? null,
             'slug' => $slug,
             'date_start' => $validated['date_start'],
             'date_end' => $validated['date_end'],
             'daily_window_start' => ($validated['daily_window_start'] ?? '08:00').':00',
             'daily_window_end' => ($validated['daily_window_end'] ?? '20:00').':00',
-            'status' => $validated['status'],
+            'status' => 'open',
+            'registration_enabled' => true,
             'public_link_token' => $token,
             'embed_token' => $embed,
         ]);
@@ -130,6 +138,18 @@ class EventController extends Controller
             ->where('waitlist', false)
             ->count();
 
+        $slotQuery = Slot::query()->whereHas('position', fn ($q) => $q->where('event_id', $event->id));
+        $capacityPlaces = (int) (clone $slotQuery)->sum('max_volunteers');
+        $slotsCount = (int) (clone $slotQuery)->count();
+        $positionsCount = $event->positions()->count();
+        $spotsOpen = max(0, $capacityPlaces - $totalRegs);
+        $fillPercentPlaces = $capacityPlaces > 0 ? (int) round(100 * $totalRegs / $capacityPlaces) : 0;
+        $waitlistCount = Registration::query()
+            ->whereHas('slot.position', fn ($q) => $q->where('event_id', $event->id))
+            ->where('waitlist', true)
+            ->whereNull('cancelled_at')
+            ->count();
+
         $maxSlots = $positions->sum(fn ($p) => count($p['slots']));
         $filledSlots = $positions->sum(fn ($p) => collect($p['slots'])->filter(fn ($s) => $s['active_count'] >= $s['max_volunteers'])->count());
         $fillRate = $maxSlots > 0 ? round(($filledSlots / $maxSlots) * 100) : 0;
@@ -170,11 +190,18 @@ class EventController extends Controller
                 'waitlist_enabled' => $event->waitlist_enabled,
                 'participant_edit_deadline_hours' => $event->participant_edit_deadline_hours,
                 'matching_enabled' => $event->matching_enabled,
+                'registration_enabled' => $event->registration_enabled,
             ],
             'positions' => $positions,
             'stats' => [
                 'total_registrations' => $totalRegs,
                 'fill_rate' => $fillRate,
+                'capacity_places' => $capacityPlaces,
+                'spots_open' => $spotsOpen,
+                'fill_percent_places' => $fillPercentPlaces,
+                'slots_count' => $slotsCount,
+                'positions_count' => $positionsCount,
+                'waitlist_count' => $waitlistCount,
                 'days_until_start' => $daysUntilStart,
                 'j3_critical' => $j3Critical,
                 'signup_timeline' => $signupTimeline,
@@ -198,6 +225,9 @@ class EventController extends Controller
                 'slug' => $event->slug,
                 'title' => $event->title,
                 'description' => $event->description,
+                'additional_info' => $event->additional_info,
+                'recommendations' => $event->recommendations,
+                'practical_details' => $event->practical_details,
                 'date_start' => $event->date_start?->toDateString(),
                 'date_end' => $event->date_end?->toDateString(),
                 'daily_window_start' => substr((string) $event->daily_window_start, 0, 5),
@@ -207,9 +237,29 @@ class EventController extends Controller
                 'waitlist_enabled' => $event->waitlist_enabled,
                 'participant_edit_deadline_hours' => $event->participant_edit_deadline_hours,
                 'matching_enabled' => $event->matching_enabled,
+                'registration_enabled' => $event->registration_enabled,
                 'custom_fields' => $event->custom_fields ?? [],
             ],
         ]);
+    }
+
+    public function updateRegistrationEnabled(Request $request, Event $event)
+    {
+        $this->authorize('configure', $event);
+
+        $validated = $request->validate([
+            'registration_enabled' => ['required', 'boolean'],
+        ]);
+
+        $event->registration_enabled = $validated['registration_enabled'];
+        $event->save();
+
+        return redirect()->back()->with(
+            'success',
+            $event->registration_enabled
+                ? __('Les inscriptions publiques sont ouvertes.')
+                : __('Les inscriptions publiques sont désactivées. La page publique reste consultable.')
+        );
     }
 
     public function update(Request $request, Event $event)
@@ -219,11 +269,15 @@ class EventController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'additional_info' => ['nullable', 'string'],
+            'recommendations' => ['nullable', 'string'],
+            'practical_details' => ['nullable', 'string'],
             'date_start' => ['required', 'date'],
             'date_end' => ['required', 'date', 'after_or_equal:date_start'],
             'daily_window_start' => ['nullable', 'date_format:H:i'],
             'daily_window_end' => ['nullable', 'date_format:H:i'],
-            'status' => ['required', 'in:draft,open,closed,archived'],
+            'status' => ['required', 'in:open,closed,archived'],
+            'registration_enabled' => ['boolean'],
             'notify_organizer_on_registration' => ['boolean'],
             'waitlist_enabled' => ['boolean'],
             'participant_edit_deadline_hours' => ['required', 'integer', 'min:1', 'max:720'],
@@ -234,11 +288,15 @@ class EventController extends Controller
         $event->fill([
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'additional_info' => $validated['additional_info'] ?? null,
+            'recommendations' => $validated['recommendations'] ?? null,
+            'practical_details' => $validated['practical_details'] ?? null,
             'date_start' => $validated['date_start'],
             'date_end' => $validated['date_end'],
             'daily_window_start' => ($validated['daily_window_start'] ?? '08:00').':00',
             'daily_window_end' => ($validated['daily_window_end'] ?? '20:00').':00',
             'status' => $validated['status'],
+            'registration_enabled' => (bool) ($validated['registration_enabled'] ?? true),
             'notify_organizer_on_registration' => (bool) ($validated['notify_organizer_on_registration'] ?? false),
             'waitlist_enabled' => (bool) ($validated['waitlist_enabled'] ?? true),
             'participant_edit_deadline_hours' => (int) $validated['participant_edit_deadline_hours'],

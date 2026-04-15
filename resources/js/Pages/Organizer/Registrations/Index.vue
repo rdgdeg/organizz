@@ -101,7 +101,7 @@ function toggleCheckin(id) {
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-4 py-2 text-left">Nom</th>
-                                <th class="px-4 py-2 text-left">Email</th>
+                                <th class="px-4 py-2 text-left">E-mail</th>
                                 <th class="px-4 py-2 text-left">Tél.</th>
                                 <th class="px-4 py-2 text-left">Poste / créneau</th>
                                 <th class="px-4 py-2 text-left">Att.</th>

@@ -70,20 +70,53 @@ class SlotController extends Controller
             abort(404);
         }
 
-        $validated = $request->validate([
-            'max_volunteers' => ['required', 'integer', 'min:1', 'max:500'],
-        ]);
-
         $booked = $slot->activeRegistrations()->count();
-        if ($validated['max_volunteers'] < $booked) {
-            return back()->withErrors([
-                'max_volunteers' => __('Au moins :n place(s) déjà prise(s) ; augmentez ou gardez ce minimum.', ['n' => $booked]),
+
+        $updatesSchedule = $request->filled('date')
+            || $request->filled('start_time')
+            || $request->filled('end_time');
+
+        if ($updatesSchedule) {
+            $validated = $request->validate([
+                'date' => ['required', 'date'],
+                'start_time' => ['required', 'date_format:H:i'],
+                'end_time' => ['required', 'date_format:H:i'],
             ]);
+
+            $startAt = Carbon::createFromFormat('H:i', $validated['start_time']);
+            $endAt = Carbon::createFromFormat('H:i', $validated['end_time']);
+            if ($endAt->lte($startAt)) {
+                return back()->withErrors(['end_time' => __('L’heure de fin doit être après le début.')]);
+            }
+
+            $day = Carbon::parse($validated['date'])->startOfDay();
+            if ($day->lt($event->date_start->copy()->startOfDay()) || $day->gt($event->date_end->copy()->startOfDay())) {
+                return back()->withErrors(['date' => __('La date doit être comprise dans la période de l’événement.')]);
+            }
+
+            $slot->date = $validated['date'];
+            $slot->start_time = $startAt->format('H:i:s');
+            $slot->end_time = $endAt->format('H:i:s');
         }
 
-        $slot->max_volunteers = $validated['max_volunteers'];
-        $slot->save();
+        if ($request->has('max_volunteers')) {
+            $validated = $request->validate([
+                'max_volunteers' => ['required', 'integer', 'min:1', 'max:500'],
+            ]);
 
-        return back()->with('success', __('Nombre de places mis à jour pour ce créneau.'));
+            if ($validated['max_volunteers'] < $booked) {
+                return back()->withErrors([
+                    'max_volunteers' => __('Au moins :n place(s) déjà prise(s) ; augmentez ou gardez ce minimum.', ['n' => $booked]),
+                ]);
+            }
+
+            $slot->max_volunteers = $validated['max_volunteers'];
+        }
+
+        if ($slot->isDirty()) {
+            $slot->save();
+        }
+
+        return back()->with('success', __('Créneau mis à jour.'));
     }
 }

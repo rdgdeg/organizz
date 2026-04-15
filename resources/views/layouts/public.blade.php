@@ -17,15 +17,15 @@
     @vite(['resources/js/public.js'])
 </head>
 <body class="flex min-h-screen flex-col bg-organizer-app bg-organizer-grid font-sans text-slate-900 antialiased">
-    <div class="pointer-events-none fixed inset-0 bg-mesh opacity-50" aria-hidden="true"></div>
+    {{-- Un seul calque décoratif (au lieu de 3) pour limiter les couches de composition au scroll --}}
     <div
-        class="pointer-events-none fixed inset-0 bg-gradient-to-br from-brand-500/[0.04] via-transparent to-ember-500/[0.07]"
+        class="pointer-events-none fixed inset-0 -z-10 opacity-90"
+        style="background: radial-gradient(at 40% 20%, rgb(59 130 246 / 0.14) 0px, transparent 50%), linear-gradient(to bottom right, rgb(59 130 246 / 0.04), transparent 45%, rgb(255 107 53 / 0.05)), linear-gradient(180deg, rgb(255 255 255 / 0.9) 0%, transparent 38%, rgb(241 245 249 / 0.95) 100%)"
         aria-hidden="true"
     ></div>
-    <div class="pointer-events-none fixed inset-0 bg-[linear-gradient(180deg,rgb(255_255_255/0.88)_0%,transparent_40%,rgb(241_245_249/0.92)_100%)]" aria-hidden="true"></div>
 
     <header
-        class="relative z-30 border-b border-slate-200/70 bg-white/80 pt-[env(safe-area-inset-top)] shadow-[0_1px_0_rgb(15_23_42/0.04)] backdrop-blur-xl"
+        class="relative z-30 border-b border-slate-200/80 bg-white pt-[env(safe-area-inset-top)] shadow-[0_1px_0_rgb(15_23_42/0.06)]"
     >
         <div
             class="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand-400/35 to-ember-400/40"
@@ -49,7 +49,6 @@
 
             <nav class="hidden flex-1 items-center justify-center gap-1 md:flex lg:gap-2" aria-label="Navigation principale">
                 <a href="{{ url('/') }}#top" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/90 hover:text-slate-900 hover:ring-1 hover:ring-slate-200/80">Accueil</a>
-                <a href="{{ url('/') }}#chiffres" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/90 hover:text-slate-900 hover:ring-1 hover:ring-slate-200/80">Chiffres</a>
                 <a href="{{ url('/') }}#features" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/90 hover:text-slate-900 hover:ring-1 hover:ring-slate-200/80">Fonctionnalités</a>
                 <a href="{{ url('/') }}#stats" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/90 hover:text-slate-900 hover:ring-1 hover:ring-slate-200/80">Pourquoi Organizz</a>
                 <a href="{{ url('/') }}#tarifs" class="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/90 hover:text-slate-900 hover:ring-1 hover:ring-slate-200/80">Tarifs</a>
@@ -65,7 +64,6 @@
                             <a href="{{ route('dashboard') }}" class="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-800">Espace organisateur</a>
                         @endauth
                         <a href="{{ url('/') }}#top" class="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-800">Accueil</a>
-                        <a href="{{ url('/') }}#chiffres" class="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-800">Chiffres</a>
                         <a href="{{ url('/') }}#features" class="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-800">Fonctionnalités</a>
                         <a href="{{ url('/') }}#stats" class="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-800">Pourquoi Organizz</a>
                         <a href="{{ url('/') }}#tarifs" class="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-800">Tarifs</a>

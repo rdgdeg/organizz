@@ -16,6 +16,9 @@ const customFieldsText = ref(JSON.stringify(props.event.custom_fields ?? [], nul
 const form = useForm({
     title: props.event.title,
     description: props.event.description ?? '',
+    additional_info: props.event.additional_info ?? '',
+    recommendations: props.event.recommendations ?? '',
+    practical_details: props.event.practical_details ?? '',
     date_start: props.event.date_start,
     date_end: props.event.date_end,
     daily_window_start: props.event.daily_window_start,
@@ -25,6 +28,7 @@ const form = useForm({
     waitlist_enabled: props.event.waitlist_enabled ?? true,
     participant_edit_deadline_hours: props.event.participant_edit_deadline_hours ?? 48,
     matching_enabled: props.event.matching_enabled ?? true,
+    registration_enabled: props.event.registration_enabled !== false,
     custom_fields: props.event.custom_fields ?? [],
 });
 
@@ -68,6 +72,42 @@ function submit() {
                         <textarea
                             id="description"
                             v-model="form.description"
+                            rows="4"
+                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                        />
+                    </div>
+                    <div>
+                        <InputLabel for="additional_info" value="Informations complémentaires" />
+                        <p class="mt-0.5 text-xs text-gray-500">
+                            Affichées sur la page publique sous la description (accès, contact, etc.).
+                        </p>
+                        <textarea
+                            id="additional_info"
+                            v-model="form.additional_info"
+                            rows="3"
+                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                        />
+                    </div>
+                    <div>
+                        <InputLabel for="recommendations" value="Recommandations" />
+                        <p class="mt-0.5 text-xs text-gray-500">
+                            Conseils vestimentaires, matériel à prévoir, etc.
+                        </p>
+                        <textarea
+                            id="recommendations"
+                            v-model="form.recommendations"
+                            rows="3"
+                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                        />
+                    </div>
+                    <div>
+                        <InputLabel for="practical_details" value="Détails pratiques" />
+                        <p class="mt-0.5 text-xs text-gray-500">
+                            Stationnement, restauration, point de rendez-vous…
+                        </p>
+                        <textarea
+                            id="practical_details"
+                            v-model="form.practical_details"
                             rows="4"
                             class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500"
                         />
@@ -121,12 +161,25 @@ function submit() {
                             v-model="form.status"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                         >
-                            <option value="draft">Brouillon</option>
-                            <option value="open">Ouvert</option>
-                            <option value="closed">Fermé</option>
-                            <option value="archived">Archivé</option>
+                            <option value="open">Ouvert (inscriptions possibles si activées ci-dessous)</option>
+                            <option value="closed">Fermé (page publique consultable, pas de nouvelles inscriptions)</option>
+                            <option value="archived">Archivé (masqué du public)</option>
                         </select>
                     </div>
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                        <input
+                            v-model="form.registration_enabled"
+                            type="checkbox"
+                            class="rounded border-gray-300 text-brand-600"
+                            :disabled="form.status !== 'open'"
+                        />
+                        <span>
+                            Autoriser les inscriptions sur la page publique
+                            <span v-if="form.status !== 'open'" class="block text-xs font-normal text-amber-800">
+                                (passez le statut à « Ouvert » pour rouvrir les inscriptions)
+                            </span>
+                        </span>
+                    </label>
                     <label class="flex items-center gap-2 text-sm text-gray-700">
                         <input
                             v-model="form.notify_organizer_on_registration"

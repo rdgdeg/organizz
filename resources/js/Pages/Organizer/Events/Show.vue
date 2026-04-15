@@ -3,8 +3,10 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import Modal from '@/Components/Modal.vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps({
     event: Object,
@@ -51,6 +53,42 @@ function deleteSlot(slotId) {
     });
 }
 
+const showEditSlot = ref(false);
+const editingSlotId = ref(null);
+const editingSlotBooked = ref(0);
+
+const editSlotForm = useForm({
+    date: '',
+    start_time: '',
+    end_time: '',
+    max_volunteers: 1,
+});
+
+function openEditSlot(s) {
+    editingSlotId.value = s.id;
+    editingSlotBooked.value = s.active_count ?? 0;
+    editSlotForm.date = s.date;
+    editSlotForm.start_time = String(s.start_time).slice(0, 5);
+    editSlotForm.end_time = String(s.end_time).slice(0, 5);
+    editSlotForm.max_volunteers = s.max_volunteers;
+    editSlotForm.clearErrors();
+    showEditSlot.value = true;
+}
+
+function closeEditSlot() {
+    showEditSlot.value = false;
+    editingSlotId.value = null;
+    editSlotForm.clearErrors();
+}
+
+function submitEditSlot() {
+    if (!editingSlotId.value) return;
+    editSlotForm.patch(route('evenements.creneaux.modifier', [props.event.slug, editingSlotId.value]), {
+        preserveScroll: true,
+        onSuccess: () => closeEditSlot(),
+    });
+}
+
 const copiedEmbed = ref(false);
 
 function copyEmbed() {
@@ -63,12 +101,34 @@ function copyEmbed() {
 function duplicateEvent() {
     if (
         !confirm(
-            'Dupliquer cet événement en brouillon ? Les postes, créneaux et règles de rappel seront copiés.',
+            'Dupliquer cet événement ? Les postes, créneaux et règles de rappel seront copiés dans un nouvel événement ouvert.',
         )
     ) {
         return;
     }
     router.post(route('evenements.dupliquer', props.event.slug), {});
+}
+
+const regToggle = useForm({
+    registration_enabled: props.event.registration_enabled !== false,
+});
+
+watch(
+    () => props.event.registration_enabled,
+    (v) => {
+        regToggle.registration_enabled = v !== false;
+    },
+);
+
+function setRegistrationEnabled(checked) {
+    regToggle.registration_enabled = checked;
+    regToggle.patch(route('evenements.inscriptions_publiques', props.event.slug), {
+        preserveScroll: true,
+    });
+}
+
+function scrollToCreneaux() {
+    document.getElementById('section-creneaux')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 </script>
 
@@ -118,7 +178,7 @@ function duplicateEvent() {
                         :href="route('evenements.export', event.slug)"
                         class="inline-flex items-center rounded-full border border-slate-200/90 bg-white/90 px-3.5 py-1.5 text-sm font-medium text-slate-800 shadow-sm transition hover:border-brand-200 hover:bg-brand-50/80"
                     >
-                        Export CSV
+                        Exporter (CSV)
                     </a>
                     <Link
                         v-if="permissions.manageCollaborators"
@@ -132,7 +192,7 @@ function duplicateEvent() {
         </template>
 
         <div class="py-8">
-            <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-5xl space-y-5 sm:px-6 lg:px-8">
                 <div
                     v-if="page.props.flash?.success"
                     class="rounded-2xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50 to-teal-50/80 p-4 text-sm font-medium text-emerald-900 shadow-sm"
@@ -140,65 +200,191 @@ function duplicateEvent() {
                     {{ page.props.flash.success }}
                 </div>
 
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div
-                        class="organizer-card relative overflow-hidden border-t-4 border-t-brand-500 p-5"
-                    >
-                        <div class="flex items-start gap-3">
-                            <span
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-600/25"
+                <!-- Postes en premier : visible sans scroller -->
+                <section
+                    id="section-postes"
+                    class="organizer-card scroll-mt-24 border-t-4 border-t-violet-500 p-4 sm:p-5"
+                    aria-labelledby="postes-heading"
+                >
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <h3 id="postes-heading" class="text-[11px] font-bold uppercase tracking-[0.18em] text-violet-700/90">
+                                Postes de l’événement
+                            </h3>
+                            <p class="mt-1 text-sm text-slate-600">Rôles (accueil, bar…) et grille horaire — configuration dans Postes.</p>
+                        </div>
+                        <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+                            <SecondaryButton
+                                type="button"
+                                class="inline-flex w-full items-center justify-center gap-2 sm:w-auto"
+                                @click="scrollToCreneaux"
                             >
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                                    />
+                                Aller aux créneaux
+                                <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                 </svg>
-                            </span>
-                            <div class="min-w-0">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Inscriptions actives</p>
-                                <p class="mt-1 text-3xl font-bold tabular-nums text-slate-900">{{ stats.total_registrations }}</p>
-                            </div>
+                            </SecondaryButton>
+                            <Link
+                                v-if="permissions.configure"
+                                :href="route('evenements.postes.index', event.slug)"
+                                class="inline-flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-violet-500/25 transition hover:from-violet-700 hover:to-violet-600"
+                            >
+                                Gérer les postes
+                            </Link>
+                            <Link
+                                v-else
+                                :href="route('evenements.postes.index', event.slug)"
+                                class="inline-flex shrink-0 items-center justify-center rounded-xl border border-violet-200 bg-white px-4 py-2.5 text-sm font-semibold text-violet-900 shadow-sm transition hover:bg-violet-50"
+                            >
+                                Voir les postes
+                            </Link>
                         </div>
                     </div>
+
                     <div
-                        class="organizer-card relative overflow-hidden border-t-4 border-t-ember-500 p-5"
+                        v-if="!positions.length"
+                        class="mt-4 rounded-2xl border border-dashed border-violet-200/90 bg-violet-50/50 px-4 py-6 text-center text-sm text-slate-700"
                     >
-                        <div class="flex items-start gap-3">
+                        Aucun poste pour l’instant.
+                        <Link
+                            v-if="permissions.configure"
+                            :href="route('evenements.postes.index', event.slug)"
+                            class="font-semibold text-violet-800 underline decoration-violet-300 underline-offset-2 hover:text-violet-950"
+                            >Créer un poste</Link
+                        >
+                        pour générer les créneaux.
+                    </div>
+                    <ul v-else class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                        <li
+                            v-for="p in positions"
+                            :key="p.id"
+                            class="flex min-w-0 items-center gap-3 rounded-xl border border-slate-100 bg-white/90 px-3 py-2.5 shadow-sm ring-1 ring-slate-100/80"
+                        >
                             <span
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-ember-400 to-ember-600 text-white shadow-md shadow-ember-500/30"
-                            >
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                                    />
-                                </svg>
-                            </span>
+                                class="h-9 w-9 shrink-0 rounded-xl shadow-inner ring-2 ring-white"
+                                :style="{ background: p.color }"
+                                aria-hidden="true"
+                            />
                             <div class="min-w-0 flex-1">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Remplissage créneaux</p>
-                                <p class="mt-1 text-3xl font-bold tabular-nums text-slate-900">{{ stats.fill_rate }}%</p>
-                                <p
-                                    v-if="stats.j3_critical"
-                                    class="mt-2 rounded-lg bg-amber-100/90 px-2 py-1 text-xs font-semibold text-amber-900"
-                                >
-                                    Alerte J-3 : moins de 50 % des créneaux sont complets.
+                                <p class="truncate font-semibold text-slate-900">{{ p.name }}</p>
+                                <p class="text-xs text-slate-500">
+                                    {{ p.slots.length }} créneau(x)
+                                    <span v-if="p.stats?.critical_slots" class="text-amber-800">
+                                        · {{ p.stats.critical_slots }} sous 50&nbsp;%
+                                    </span>
                                 </p>
                             </div>
-                        </div>
-                    </div>
+                        </li>
+                    </ul>
+                    <p v-if="positions.length" class="mt-2 text-xs text-slate-500">
+                        <Link
+                            :href="route('evenements.postes.index', event.slug)"
+                            class="font-medium text-violet-800 hover:underline"
+                            >Postes</Link
+                        >
+                        — durées, régénération de grille, nouveaux rôles.
+                    </p>
+                </section>
+
+                <div
+                    v-if="permissions.configure && event.status === 'open'"
+                    class="organizer-card border-t-4 border-t-emerald-500 p-4 sm:p-5"
+                >
+                    <label class="flex cursor-pointer items-start gap-3">
+                        <input
+                            type="checkbox"
+                            class="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 disabled:opacity-50"
+                            :checked="regToggle.registration_enabled"
+                            :disabled="regToggle.processing"
+                            @change="setRegistrationEnabled($event.target.checked)"
+                        />
+                        <span>
+                            <span class="font-semibold text-slate-900">Inscriptions sur la page publique</span>
+                            <span class="mt-1 block text-sm text-slate-600">
+                                Décochez pour empêcher de nouvelles inscriptions tout en laissant la page consultable (créneaux visibles).
+                            </span>
+                        </span>
+                    </label>
+                </div>
+                <div
+                    v-else-if="permissions.configure && event.status !== 'open'"
+                    class="rounded-2xl border border-amber-200/80 bg-amber-50/90 p-4 text-sm text-amber-950"
+                >
+                    <span class="font-semibold">Inscriptions fermées</span>
+                    <span class="mt-1 block text-amber-900/90">
+                        Le statut n’est pas « Ouvert » — passez par « Modifier » pour changer le statut si vous souhaitez rouvrir les inscriptions.
+                    </span>
+                </div>
+
+                <!-- Bandeau stats : une seule ligne dense (pas de grille de grosses cartes) -->
+                <section
+                    class="rounded-xl border border-slate-200/90 bg-white px-3 py-2 shadow-sm ring-1 ring-slate-100/80"
+                    aria-label="Indicateurs rapides"
+                >
                     <div
-                        class="organizer-card relative overflow-hidden border-t-4 border-t-brand-400 p-5 sm:col-span-1"
+                        class="flex flex-col gap-2 text-sm leading-snug text-slate-800 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-1 sm:gap-y-1"
                     >
-                        <div class="flex items-start gap-3">
+                        <span class="sr-only">Indicateurs :</span>
+                        <span class="font-semibold tabular-nums text-slate-900">
+                            {{ stats.total_registrations }}/{{ stats.capacity_places }}
+                        </span>
+                        <span class="hidden text-slate-300 sm:inline" aria-hidden="true">·</span>
+                        <span class="flex min-w-0 items-center gap-2 sm:inline-flex">
                             <span
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-md"
+                                class="inline-block h-1.5 max-w-[5rem] flex-1 overflow-hidden rounded-full bg-slate-200 sm:max-w-[6rem] sm:flex-none sm:w-20"
                             >
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <span
+                                    class="block h-full rounded-full bg-gradient-to-r from-brand-500 to-ember-400"
+                                    :style="{ width: Math.min(100, stats.fill_percent_places) + '%' }"
+                                />
+                            </span>
+                            <span class="text-xs text-slate-600">{{ stats.fill_percent_places }}%</span>
+                            <span class="text-xs text-slate-500">({{ stats.spots_open }} libres)</span>
+                        </span>
+                        <span class="hidden text-slate-300 sm:inline" aria-hidden="true">·</span>
+                        <span class="text-xs text-slate-600">
+                            <span class="font-medium text-slate-500">Créneaux</span>
+                            {{ stats.slots_count }}
+                            <span class="text-slate-400">·</span>
+                            {{ stats.fill_rate }}% complets
+                        </span>
+                        <span class="hidden text-slate-300 sm:inline" aria-hidden="true">·</span>
+                        <span class="text-xs text-slate-600">
+                            <span class="font-medium text-slate-500">Attente</span>
+                            {{ stats.waitlist_count }}
+                        </span>
+                        <span class="hidden text-slate-300 sm:inline" aria-hidden="true">·</span>
+                        <span class="text-xs font-semibold tabular-nums text-slate-900">
+                            <template v-if="stats.days_until_start > 0">J-{{ stats.days_until_start }}</template>
+                            <template v-else-if="stats.days_until_start === 0">Jour J</template>
+                            <template v-else>Passé</template>
+                        </span>
+                    </div>
+                    <p
+                        v-if="stats.j3_critical"
+                        class="mt-2 border-t border-amber-100/90 pt-2 text-[11px] font-semibold text-amber-950"
+                    >
+                        Alerte J-3 : moins de 50&nbsp;% des créneaux sont complets.
+                    </p>
+                    <details class="mt-1.5 border-t border-slate-100 pt-1.5 text-[11px] text-slate-500">
+                        <summary class="cursor-pointer select-none font-medium text-slate-600 hover:text-slate-800">
+                            Détail des chiffres
+                        </summary>
+                        <ul class="mt-1.5 space-y-0.5 pl-0.5">
+                            <li>Capacité : {{ stats.capacity_places }} places (tous créneaux).</li>
+                            <li>Places restantes : {{ stats.spots_open }} (hors liste d’attente).</li>
+                            <li>Part de créneaux « complet » : {{ stats.fill_rate }}%.</li>
+                        </ul>
+                    </details>
+                </section>
+
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <div class="organizer-card relative overflow-hidden border-t-4 border-t-brand-400 p-4 sm:p-4">
+                        <div class="flex items-start gap-2.5">
+                            <span
+                                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white shadow-md"
+                            >
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
@@ -208,20 +394,20 @@ function duplicateEvent() {
                                 </svg>
                             </span>
                             <div class="min-w-0 flex-1">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Lien public</p>
-                                <SecondaryButton type="button" class="mt-3 w-full sm:w-auto" @click="copyLink">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Lien public</p>
+                                <SecondaryButton type="button" class="mt-2 w-full sm:w-auto" @click="copyLink">
                                     {{ copied ? 'Copié !' : 'Copier le lien' }}
                                 </SecondaryButton>
-                                <p class="mt-2 break-all text-[11px] leading-relaxed text-slate-500">{{ event.public_url }}</p>
+                                <p class="mt-1.5 break-all text-[10px] leading-relaxed text-slate-500">{{ event.public_url }}</p>
                             </div>
                         </div>
                     </div>
-                    <div class="organizer-card relative overflow-hidden border-t-4 border-t-slate-700 p-5">
-                        <div class="flex items-start gap-3">
+                    <div class="organizer-card relative overflow-hidden border-t-4 border-t-slate-700 p-4 sm:p-4">
+                        <div class="flex items-start gap-2.5">
                             <span
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-md"
+                                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-md"
                             >
-                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
@@ -231,17 +417,17 @@ function duplicateEvent() {
                                 </svg>
                             </span>
                             <div class="min-w-0 flex-1">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">QR & intégration</p>
-                                <div class="mt-3 flex flex-wrap gap-2">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">QR & intégration</p>
+                                <div class="mt-2 flex flex-wrap gap-2">
                                     <a
                                         :href="event.qr_url"
                                         target="_blank"
                                         rel="noopener"
                                         class="inline-flex items-center rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-800 ring-1 ring-brand-200/80 transition hover:bg-brand-100"
-                                        >QR PNG</a
+                                        >QR (PNG)</a
                                     >
                                     <SecondaryButton v-if="event.embed_url" type="button" class="!py-1 text-xs" @click="copyEmbed">
-                                        {{ copiedEmbed ? 'Copié !' : 'Iframe' }}
+                                        {{ copiedEmbed ? 'Copié !' : 'Intégration' }}
                                     </SecondaryButton>
                                 </div>
                                 <p v-if="event.embed_url" class="mt-2 break-all text-[11px] text-slate-500">
@@ -254,10 +440,10 @@ function duplicateEvent() {
 
                 <div
                     v-if="stats.signup_timeline && stats.signup_timeline.length"
-                    class="organizer-card p-5"
+                    class="organizer-card p-4"
                 >
                     <h3 class="text-sm font-semibold text-slate-800">Inscriptions dans le temps</h3>
-                    <div class="mt-4 flex h-28 items-end gap-1">
+                    <div class="mt-3 flex h-20 items-end gap-1">
                         <div
                             v-for="row in stats.signup_timeline"
                             :key="row.date"
@@ -326,12 +512,12 @@ function duplicateEvent() {
                     </div>
                 </div>
 
-                <div>
+                <div id="section-creneaux" class="scroll-mt-24">
                     <h3 class="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-brand-600/90">
                         Créneaux par poste
                     </h3>
                     <p class="mb-5 text-sm text-slate-600">
-                        Ouvrez une carte pour afficher les horaires — moins de défilement, plus de clarté.
+                        Jusqu’à trois fiches par ligne sur grand écran — ouvrez une fiche pour voir les horaires et les actions.
                     </p>
 
                     <div
@@ -347,7 +533,7 @@ function duplicateEvent() {
                         >.
                     </div>
 
-                    <div v-else class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                    <div v-else class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         <details
                             v-for="(pos, idx) in positions"
                             :key="pos.id"
@@ -415,6 +601,14 @@ function duplicateEvent() {
                                                     v-if="permissions.configure"
                                                     type="button"
                                                     class="!py-1.5 text-xs"
+                                                    @click="openEditSlot(s)"
+                                                >
+                                                    Modifier
+                                                </SecondaryButton>
+                                                <SecondaryButton
+                                                    v-if="permissions.configure"
+                                                    type="button"
+                                                    class="!py-1.5 text-xs"
                                                     @click="deleteSlot(s.id)"
                                                 >
                                                     Supprimer
@@ -439,5 +633,71 @@ function duplicateEvent() {
                 </div>
             </div>
         </div>
+
+        <Modal :show="showEditSlot" max-width="lg" @close="closeEditSlot">
+            <div class="p-6">
+                <h2 class="text-lg font-semibold text-slate-900">Modifier le créneau</h2>
+                <p class="mt-1 text-sm text-slate-600">
+                    Ajustez la date, les horaires et la capacité. Le nombre de places ne peut pas être inférieur au nombre
+                    d’inscriptions actives ({{ editingSlotBooked }}).
+                </p>
+                <form class="mt-6 space-y-4" @submit.prevent="submitEditSlot">
+                    <div>
+                        <InputLabel for="edit_slot_date" value="Date" />
+                        <input
+                            id="edit_slot_date"
+                            v-model="editSlotForm.date"
+                            type="date"
+                            class="organizer-input mt-1 w-full max-w-xs"
+                            :min="event.date_start"
+                            :max="event.date_end"
+                            required
+                        />
+                        <InputError class="mt-1" :message="editSlotForm.errors.date" />
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <InputLabel for="edit_slot_start" value="Début" />
+                            <input
+                                id="edit_slot_start"
+                                v-model="editSlotForm.start_time"
+                                type="time"
+                                class="organizer-input mt-1 w-full"
+                                required
+                            />
+                            <InputError class="mt-1" :message="editSlotForm.errors.start_time" />
+                        </div>
+                        <div>
+                            <InputLabel for="edit_slot_end" value="Fin" />
+                            <input
+                                id="edit_slot_end"
+                                v-model="editSlotForm.end_time"
+                                type="time"
+                                class="organizer-input mt-1 w-full"
+                                required
+                            />
+                            <InputError class="mt-1" :message="editSlotForm.errors.end_time" />
+                        </div>
+                    </div>
+                    <div>
+                        <InputLabel for="edit_slot_max" value="Places" />
+                        <input
+                            id="edit_slot_max"
+                            v-model.number="editSlotForm.max_volunteers"
+                            type="number"
+                            class="organizer-input mt-1 w-full max-w-xs"
+                            :min="Math.max(1, editingSlotBooked)"
+                            max="500"
+                            required
+                        />
+                        <InputError class="mt-1" :message="editSlotForm.errors.max_volunteers" />
+                    </div>
+                    <div class="flex justify-end gap-2 pt-2">
+                        <SecondaryButton type="button" @click="closeEditSlot">Annuler</SecondaryButton>
+                        <PrimaryButton :disabled="editSlotForm.processing">Enregistrer</PrimaryButton>
+                    </div>
+                </form>
+            </div>
+        </Modal>
     </AuthenticatedLayout>
 </template>

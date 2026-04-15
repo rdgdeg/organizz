@@ -24,7 +24,7 @@ class EventPublicController extends Controller
     {
         $event = Event::query()->where('slug', $slug)->firstOrFail();
 
-        if (! $event->isOpen()) {
+        if (! $event->isPubliclyVisible()) {
             abort(404);
         }
 
@@ -78,8 +78,10 @@ class EventPublicController extends Controller
         }
 
         $event = Event::query()->where('slug', $slug)->firstOrFail();
-        if (! $event->isOpen()) {
-            abort(404);
+        if (! $event->acceptsRegistrations()) {
+            throw ValidationException::withMessages([
+                'slot_ids' => __('Les inscriptions ne sont pas ouvertes pour cet événement.'),
+            ]);
         }
 
         $validated = $request->validate([

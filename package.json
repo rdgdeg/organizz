@@ -4,7 +4,9 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "clear:laravel": "php artisan optimize:clear",
+        "build:fresh": "npm run clear:laravel && vite build"
     },
     "devDependencies": {
         "@inertiajs/vue3": "^2.0.0",

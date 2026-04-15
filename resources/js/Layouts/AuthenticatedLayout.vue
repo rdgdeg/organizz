@@ -17,7 +17,7 @@ const showingNavigationDropdown = ref(false);
             aria-hidden="true"
         />
         <nav
-            class="sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 shadow-[0_1px_0_0_rgb(255_255_255/0.8)_inset] backdrop-blur-xl"
+            class="sticky top-0 z-50 border-b border-slate-200/80 bg-white shadow-[0_1px_0_0_rgb(241_245_249/0.9)]"
         >
             <div
                 class="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand-400/40 to-ember-400/50"

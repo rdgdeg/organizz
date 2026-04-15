@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Throwable;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -16,9 +17,23 @@ class HandleInertiaRequests extends Middleware
 
     /**
      * Determine the current asset version.
+     *
+     * Change à chaque `npm run build` → Inertia force un rechargement complet si la version ne correspond plus
+     * (évite de garder un vieux bundle JS en mémoire côté client).
      */
     public function version(Request $request): ?string
     {
+        $manifest = public_path('build/manifest.json');
+        if (is_file($manifest)) {
+            try {
+                $hash = md5_file($manifest);
+
+                return $hash !== false ? $hash : parent::version($request);
+            } catch (Throwable) {
+                return parent::version($request);
+            }
+        }
+
         return parent::version($request);
     }
 

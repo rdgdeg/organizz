@@ -81,7 +81,7 @@ function testEmail() {
                         </div>
                         <label class="flex items-center gap-2 text-sm">
                             <input v-model="createForm.active" type="checkbox" class="rounded border-gray-300" />
-                            Active
+                            Activée
                         </label>
                         <PrimaryButton :disabled="createForm.processing">Ajouter</PrimaryButton>
                     </form>
@@ -108,7 +108,7 @@ function testEmail() {
                         </div>
                         <label class="flex items-center gap-2 text-sm">
                             <input v-model="r.active" type="checkbox" class="rounded border-gray-300" />
-                            Active
+                            Activée
                         </label>
                         <PrimaryButton type="submit">Enregistrer</PrimaryButton>
                         <SecondaryButton type="button" class="text-red-700" @click="destroyRule(r.id)">

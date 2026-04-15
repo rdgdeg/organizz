@@ -28,9 +28,27 @@
         @if ($event->description)
             <p class="mt-4 whitespace-pre-line text-base leading-relaxed text-slate-600">{{ $event->description }}</p>
         @endif
+        @if ($event->additional_info)
+            <div class="mt-6 rounded-xl border border-slate-100 bg-slate-50/80 p-4">
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ __('Informations complémentaires') }}</p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-700">{{ $event->additional_info }}</p>
+            </div>
+        @endif
+        @if ($event->recommendations)
+            <div class="mt-4 rounded-xl border border-amber-100 bg-amber-50/60 p-4">
+                <p class="text-xs font-semibold uppercase tracking-wider text-amber-900/80">{{ __('Recommandations') }}</p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-amber-950">{{ $event->recommendations }}</p>
+            </div>
+        @endif
+        @if ($event->practical_details)
+            <div class="mt-4 rounded-xl border border-brand-100 bg-brand-50/40 p-4">
+                <p class="text-xs font-semibold uppercase tracking-wider text-brand-800">{{ __('Détails pratiques') }}</p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-800">{{ $event->practical_details }}</p>
+            </div>
+        @endif
     </header>
 
-    @if ($event->matching_enabled)
+    @if ($event->matching_enabled && $event->acceptsRegistrations())
         <section class="mt-6 rounded-xl border border-amber-100 bg-amber-50/80 p-4 text-sm text-amber-950" id="matching-section" data-matching="1">
             <p class="font-semibold">{{ __('Filtrer par disponibilités') }}</p>
             <p class="mt-1 text-xs text-amber-900/80">{{ __('Cochez les demi-journées où vous êtes libre : seuls les créneaux compatibles restent visibles.') }}</p>
@@ -75,6 +93,12 @@
 
     <section id="inscription-form" class="mt-10 scroll-mt-24 border-t border-slate-100 pt-10">
         <h2 class="text-lg font-semibold text-slate-900">{{ __('S’inscrire') }}</h2>
+
+        @if (! $event->acceptsRegistrations())
+            <p class="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                {{ __('Les inscriptions ne sont pas ouvertes pour le moment (désactivées par l’organisateur ou événement fermé). Vous pouvez consulter les créneaux ci-dessus.') }}
+            </p>
+        @else
         <p class="mt-1 text-sm text-slate-500">{{ __('Saisissez vos informations puis choisissez vos créneaux.') }}</p>
 
         @if ($errors->any())
@@ -102,7 +126,7 @@
                 </div>
             </div>
             <div>
-                <label for="email" class="public-label">Email</label>
+                <label for="email" class="public-label">Adresse e-mail</label>
                 <input id="email" name="email" type="email" value="{{ old('email') }}" required class="public-input" autocomplete="email">
             </div>
             <div>
@@ -188,6 +212,7 @@
                 </button>
             </div>
         </form>
+        @endif
     </section>
 </article>
 

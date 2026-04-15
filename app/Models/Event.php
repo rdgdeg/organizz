@@ -29,12 +29,16 @@ class Event extends Model
         'user_id',
         'title',
         'description',
+        'additional_info',
+        'recommendations',
+        'practical_details',
         'slug',
         'date_start',
         'date_end',
         'daily_window_start',
         'daily_window_end',
         'status',
+        'registration_enabled',
         'public_link_token',
         'notify_organizer_on_registration',
         'custom_fields',
@@ -54,6 +58,7 @@ class Event extends Model
             'waitlist_enabled' => 'boolean',
             'participant_edit_deadline_hours' => 'integer',
             'matching_enabled' => 'boolean',
+            'registration_enabled' => 'boolean',
         ];
     }
 
@@ -92,8 +97,25 @@ class Event extends Model
         return $query->where('status', 'open');
     }
 
+    /** Événement actif (rappels, logique « en cours »). */
     public function isOpen(): bool
     {
         return $this->status === 'open';
+    }
+
+    /**
+     * Page publique / iframe : visible (pas brouillon ni archivé).
+     */
+    public function isPubliclyVisible(): bool
+    {
+        return in_array($this->status, ['open', 'closed'], true);
+    }
+
+    /**
+     * Formulaire d’inscription : ouvert si le gestionnaire l’a laissé actif et que l’événement est « ouvert ».
+     */
+    public function acceptsRegistrations(): bool
+    {
+        return $this->registration_enabled && $this->status === 'open';
     }
 }

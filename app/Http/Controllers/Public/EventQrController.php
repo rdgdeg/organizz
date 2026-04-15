@@ -13,7 +13,7 @@ class EventQrController extends Controller
     public function __invoke(string $slug): Response
     {
         $event = Event::query()->where('slug', $slug)->firstOrFail();
-        if (! $event->isOpen()) {
+        if (! $event->isPubliclyVisible()) {
             abort(404);
         }
 

@@ -9,11 +9,13 @@ import { Head, useForm } from '@inertiajs/vue3';
 const form = useForm({
     title: '',
     description: '',
+    additional_info: '',
+    recommendations: '',
+    practical_details: '',
     date_start: '',
     date_end: '',
     daily_window_start: '08:00',
     daily_window_end: '20:00',
-    status: 'draft',
 });
 
 function submit() {
@@ -54,6 +56,36 @@ function submit() {
                             class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500"
                         />
                         <InputError class="mt-2" :message="form.errors.description" />
+                    </div>
+                    <div>
+                        <InputLabel for="additional_info" value="Informations complémentaires" />
+                        <textarea
+                            id="additional_info"
+                            v-model="form.additional_info"
+                            rows="3"
+                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                        />
+                        <InputError class="mt-2" :message="form.errors.additional_info" />
+                    </div>
+                    <div>
+                        <InputLabel for="recommendations" value="Recommandations" />
+                        <textarea
+                            id="recommendations"
+                            v-model="form.recommendations"
+                            rows="3"
+                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                        />
+                        <InputError class="mt-2" :message="form.errors.recommendations" />
+                    </div>
+                    <div>
+                        <InputLabel for="practical_details" value="Détails pratiques" />
+                        <textarea
+                            id="practical_details"
+                            v-model="form.practical_details"
+                            rows="4"
+                            class="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500"
+                        />
+                        <InputError class="mt-2" :message="form.errors.practical_details" />
                     </div>
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
@@ -99,20 +131,9 @@ function submit() {
                             />
                         </div>
                     </div>
-                    <div>
-                        <InputLabel for="status" value="Statut" />
-                        <select
-                            id="status"
-                            v-model="form.status"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-brand-500 focus:ring-brand-500"
-                        >
-                            <option value="draft">Brouillon</option>
-                            <option value="open">Ouvert</option>
-                            <option value="closed">Fermé</option>
-                            <option value="archived">Archivé</option>
-                        </select>
-                        <InputError class="mt-2" :message="form.errors.status" />
-                    </div>
+                    <p class="text-sm text-slate-600">
+                        L’événement est créé <strong>visible</strong> sur le lien public ; vous pourrez désactiver les inscriptions depuis la fiche événement.
+                    </p>
                     <div class="flex justify-end">
                         <PrimaryButton :disabled="form.processing">Enregistrer</PrimaryButton>
                     </div>

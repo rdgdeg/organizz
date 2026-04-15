@@ -26,11 +26,11 @@ const form = useForm({
     <section>
         <header>
             <h2 class="text-lg font-medium text-gray-900">
-                Profile Information
+                Informations du profil
             </h2>
 
             <p class="mt-1 text-sm text-gray-600">
-                Update your account's profile information and email address.
+                Mettez à jour le nom affiché et l’adresse e-mail de votre compte.
             </p>
         </header>
 
@@ -39,7 +39,7 @@ const form = useForm({
             class="mt-6 space-y-6"
         >
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" value="Nom" />
 
                 <TextInput
                     id="name"
@@ -55,7 +55,7 @@ const form = useForm({
             </div>
 
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="Adresse e-mail" />
 
                 <TextInput
                     id="email"
@@ -71,14 +71,14 @@ const form = useForm({
 
             <div v-if="mustVerifyEmail && user.email_verified_at === null">
                 <p class="mt-2 text-sm text-gray-800">
-                    Your email address is unverified.
+                    Votre adresse e-mail n’est pas encore vérifiée.
                     <Link
                         :href="route('verification.send')"
                         method="post"
                         as="button"
                         class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
                     >
-                        Click here to re-send the verification email.
+                        Cliquez ici pour renvoyer l’e-mail de vérification.
                     </Link>
                 </p>
 
@@ -86,12 +86,12 @@ const form = useForm({
                     v-show="status === 'verification-link-sent'"
                     class="mt-2 text-sm font-medium text-green-600"
                 >
-                    A new verification link has been sent to your email address.
+                    Un nouveau lien de vérification a été envoyé à votre adresse e-mail.
                 </div>
             </div>
 
             <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">Save</PrimaryButton>
+                <PrimaryButton :disabled="form.processing">Enregistrer</PrimaryButton>
 
                 <Transition
                     enter-active-class="transition ease-in-out"
@@ -103,7 +103,7 @@ const form = useForm({
                         v-if="form.recentlySuccessful"
                         class="text-sm text-gray-600"
                     >
-                        Saved.
+                        Enregistré.
                     </p>
                 </Transition>
             </div>

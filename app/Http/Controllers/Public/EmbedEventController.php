@@ -11,7 +11,7 @@ class EmbedEventController extends Controller
     public function __invoke(string $embedToken): Response
     {
         $event = Event::query()->where('embed_token', $embedToken)->firstOrFail();
-        if (! $event->isOpen()) {
+        if (! $event->isPubliclyVisible()) {
             abort(404);
         }
 

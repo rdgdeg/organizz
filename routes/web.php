@@ -45,6 +45,8 @@ Route::get('/abonnement', UpgradeController::class)
     ->name('upgrade');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    /** Liste des événements (identique au tableau de bord — évite le 405 sur GET /evenements). */
+    Route::get('/evenements', [EventController::class, 'index'])->name('evenements.index');
     Route::get('/evenements/creer', [EventController::class, 'create'])->name('evenements.creer');
     Route::post('/evenements', [EventController::class, 'store'])
         ->middleware('plan.limit:create_event')
@@ -52,6 +54,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/evenements/{event}', [EventController::class, 'show'])->name('evenements.montrer');
     Route::get('/evenements/{event}/editer', [EventController::class, 'edit'])->name('evenements.editer');
     Route::patch('/evenements/{event}', [EventController::class, 'update'])->name('evenements.mettre_a_jour');
+    Route::patch('/evenements/{event}/inscriptions-publiques', [EventController::class, 'updateRegistrationEnabled'])
+        ->name('evenements.inscriptions_publiques');
     Route::delete('/evenements/{event}', [EventController::class, 'destroy'])->name('evenements.supprimer');
     Route::post('/evenements/{event}/dupliquer', EventDuplicateController::class)
         ->middleware('plan.limit:create_event')

@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 @layer base {
+    /* scroll-behavior: smooth force le navigateur à interpoler le défilement (molette / piste) → saccades ; on laisse le défilement natif */
     html {
-        @apply scroll-smooth antialiased;
+        @apply antialiased;
     }
 
     ::selection {
@@ -46,7 +47,7 @@
     }
 
     .public-btn-hero-outline {
-        @apply inline-flex items-center justify-center rounded-xl border border-white/25 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/20;
+        @apply inline-flex items-center justify-center rounded-xl border border-white/25 bg-white/15 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/25;
     }
 
     .landing-btn-primary {
@@ -58,7 +59,7 @@
     }
 
     .landing-btn-ghost {
-        @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-7 py-3.5 text-sm font-semibold text-slate-700 shadow-sm backdrop-blur-sm transition hover:border-brand-300 hover:bg-white;
+        @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-7 py-3.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-brand-300 hover:bg-slate-50/90;
     }
 
     .landing-mock-card {
@@ -74,8 +75,9 @@
     }
 
     /** Cartes écran organisateur : rayon large, ombre douce */
+    /* Pas de backdrop-blur : chaque carte floutait le fond → coût GPU élevé au scroll */
     .organizer-card {
-        @apply rounded-3xl border border-slate-200/90 bg-white/95 shadow-elevated backdrop-blur-sm;
+        @apply rounded-3xl border border-slate-200/90 bg-white shadow-elevated;
     }
 
     /** Bandeau décoratif type landing SaaS (grille + léger dégradé en bas du panneau) */
@@ -135,5 +137,12 @@
     }
     100% {
         background-position: 0% 50%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-float,
+    .animate-float-delayed {
+        animation: none !important;
     }
 }

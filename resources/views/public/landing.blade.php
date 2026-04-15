@@ -32,9 +32,9 @@
                     <a href="{{ route('register') }}" class="landing-btn-primary w-full justify-center sm:w-auto">
                         Commencer gratuitement
                     </a>
-                    <a href="#chiffres" class="landing-btn-ghost w-full justify-center sm:w-auto">
+                    <a href="#features" class="landing-btn-ghost w-full justify-center sm:w-auto">
                         <svg class="h-5 w-5 text-ember-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                        Chiffres en direct
+                        Découvrir les fonctionnalités
                     </a>
                 </div>
                 <p class="mt-6 text-sm text-slate-500">Grandes zones tactiles, formulaire lisible au soleil, raccourci « Ajouter à l’écran d’accueil » sur iPhone &amp; Android.</p>
@@ -98,141 +98,8 @@
         </div>
     </section>
 
-    {{-- Statistiques plateforme (données réelles) --}}
-    <section id="chiffres" class="scroll-mt-24 pb-14 pt-2 sm:pb-20" aria-labelledby="chiffres-heading">
-        <div class="mx-auto max-w-6xl px-4 sm:px-6">
-            <div class="text-center">
-                <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-600">Plateforme</p>
-                <h2 id="chiffres-heading" class="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                    Ce qui se passe sur {{ config('app.name') }}
-                </h2>
-                <p class="mx-auto mt-3 max-w-2xl text-base text-slate-600">
-                    Compteurs mis à jour en temps réel : inscriptions, places encore disponibles, créneaux et file d’attente.
-                </p>
-            </div>
-
-            <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <article
-                    class="organizer-card relative overflow-hidden border-t-4 border-t-brand-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Bénévoles inscrits</p>
-                            <p class="mt-2 text-4xl font-bold tabular-nums text-slate-900">{{ number_format($stats['registrations'], 0, ',', ' ') }}</p>
-                            <p class="mt-2 text-sm text-slate-600">Inscriptions confirmées sur les créneaux</p>
-                        </div>
-                        <span
-                            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-600/25"
-                        >
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                            </svg>
-                        </span>
-                    </div>
-                </article>
-
-                <article
-                    class="organizer-card relative overflow-hidden border-t-4 border-t-ember-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Places à combler</p>
-                            <p class="mt-2 text-4xl font-bold tabular-nums text-slate-900">{{ number_format($stats['spots_open'], 0, ',', ' ') }}</p>
-                            <p class="mt-2 text-sm text-slate-600">Reste à pourvoir sur l’ensemble des créneaux</p>
-                        </div>
-                        <span
-                            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-ember-400 to-ember-600 text-white shadow-md shadow-ember-500/30"
-                        >
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                                />
-                            </svg>
-                        </span>
-                    </div>
-                </article>
-
-                <article
-                    class="organizer-card relative overflow-hidden border-t-4 border-t-slate-700 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0 flex-1">
-                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Taux de remplissage</p>
-                            <p class="mt-2 flex items-baseline gap-1 text-4xl font-bold tabular-nums text-slate-900">
-                                {{ $stats['fill_percent'] }}<span class="text-2xl font-bold text-slate-400">%</span>
-                            </p>
-                            <div class="mt-4 h-3 w-full overflow-hidden rounded-full bg-slate-200/90">
-                                <div
-                                    class="h-full rounded-full bg-gradient-to-r from-brand-500 via-brand-400 to-ember-400 transition-all"
-                                    style="width: {{ min(100, $stats['fill_percent']) }}%"
-                                ></div>
-                            </div>
-                            <p class="mt-2 text-sm text-slate-600">Sur la capacité totale déclarée</p>
-                        </div>
-                    </div>
-                </article>
-
-                <article
-                    class="organizer-card border-t-4 border-t-brand-400 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Capacité totale</p>
-                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['capacity'], 0, ',', ' ') }}</p>
-                    <p class="mt-2 text-sm text-slate-600">Places offertes (somme des créneaux)</p>
-                </article>
-
-                <article
-                    class="organizer-card border-t-4 border-t-indigo-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Créneaux</p>
-                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['slots'], 0, ',', ' ') }}</p>
-                    <p class="mt-2 text-sm text-slate-600">Plages horaires publiées</p>
-                </article>
-
-                <article
-                    class="organizer-card border-t-4 border-t-violet-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Postes (rôles)</p>
-                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['positions'], 0, ',', ' ') }}</p>
-                    <p class="mt-2 text-sm text-slate-600">Bar, accueil, logistique… configurés</p>
-                </article>
-
-                <article
-                    class="organizer-card border-t-4 border-t-teal-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Événements ouverts</p>
-                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['events_open'], 0, ',', ' ') }}</p>
-                    <p class="mt-2 text-sm text-slate-600">En ligne pour les inscriptions</p>
-                </article>
-
-                <article
-                    class="organizer-card border-t-4 border-t-amber-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Liste d’attente</p>
-                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['waitlist'], 0, ',', ' ') }}</p>
-                    <p class="mt-2 text-sm text-slate-600">Quand les créneaux affichent complet</p>
-                </article>
-
-                <article
-                    class="organizer-card border-t-4 border-t-slate-500 p-6 transition hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Organisateurs</p>
-                    <p class="mt-2 text-3xl font-bold tabular-nums text-slate-900">{{ number_format($stats['organizers'], 0, ',', ' ') }}</p>
-                    <p class="mt-2 text-sm text-slate-600">Comptes sur la plateforme</p>
-                </article>
-            </div>
-        </div>
-    </section>
-
     {{-- Preuve sociale / logos --}}
-    <section class="border-y border-slate-200/80 bg-white/70 py-10 backdrop-blur-sm">
+    <section class="border-y border-slate-200/80 bg-white py-10">
         <div class="mx-auto max-w-6xl px-4 sm:px-6">
             <p class="text-center text-sm font-medium text-slate-500">Les bénévoles ouvrent le lien sur leur téléphone — inscription en deux minutes, où qu’ils soient</p>
             <div class="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
@@ -277,32 +144,18 @@
                     <div class="landing-mock-card relative overflow-hidden p-6 sm:p-8">
                         <div class="flex items-center justify-between">
                             <span class="text-sm font-semibold text-slate-800">Progression des inscriptions</span>
-                            <span class="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">Temps réel</span>
+                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Exemple</span>
                         </div>
                         <p class="mt-1 text-4xl font-bold text-slate-900">
-                            @if ($stats['capacity'] > 0)
-                                {{ $stats['fill_percent'] }}<span class="text-2xl text-slate-400">%</span>
-                            @else
-                                <span class="text-3xl text-slate-500">—</span>
-                            @endif
+                            72<span class="text-2xl text-slate-400">%</span>
                         </p>
                         <p class="text-sm text-slate-500">
-                            @if ($stats['capacity'] > 0)
-                                Remplissage agrégé sur toute la plateforme
-                            @else
-                                Les barres refléteront vos premières inscriptions
-                            @endif
+                            Illustration — vos indicateurs réels sont dans le tableau de bord de chaque événement.
                         </p>
                         <div class="mt-8 flex h-40 items-end justify-between gap-2">
-                            @if ($stats['capacity'] > 0)
-                                @foreach ([20, 35, 28, 50, 45, 62, 58, 78, 85, 92, 88, min(100, $stats['fill_percent'])] as $h)
-                                    <span class="w-full rounded-t-lg bg-gradient-to-t from-brand-600/90 to-ember-400/85" style="height: {{ max(8, $h) }}%"></span>
-                                @endforeach
-                            @else
-                                @foreach ([12, 18, 15, 22, 20, 28, 25, 32, 30, 38, 35, 40] as $h)
-                                    <span class="w-full rounded-t-lg bg-gradient-to-t from-slate-300/90 to-slate-200/80" style="height: {{ $h }}%"></span>
-                                @endforeach
-                            @endif
+                            @foreach ([20, 35, 28, 50, 45, 62, 58, 78, 85, 92, 88, 72] as $h)
+                                <span class="w-full rounded-t-lg bg-gradient-to-t from-brand-600/90 to-ember-400/85" style="height: {{ max(8, $h) }}%"></span>
+                            @endforeach
                         </div>
                         <div class="mt-3 flex justify-between text-xs font-medium text-slate-400">
                             <span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span>
@@ -444,7 +297,7 @@
                 <a href="{{ route('register') }}" class="inline-flex items-center justify-center rounded-2xl bg-white px-8 py-3.5 text-sm font-bold text-brand-700 shadow-xl transition hover:bg-blue-50">
                     Commencer gratuitement
                 </a>
-                <a href="{{ route('login') }}" class="inline-flex items-center justify-center rounded-2xl border border-white/30 bg-white/10 px-8 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20">
+                <a href="{{ route('login') }}" class="inline-flex items-center justify-center rounded-2xl border border-white/30 bg-white/15 px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-white/25">
                     J’ai déjà un compte
                 </a>
             </div>
