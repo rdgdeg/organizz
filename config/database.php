@@ -4,15 +4,24 @@ use Illuminate\Support\Str;
 use Pdo\Mysql;
 
 /*
-| Sur Vercel (serverless), un fichier SQLite embarqué n'est pas utilisable.
-| Sans DB_CONNECTION : connexion supabase si SUPABASE_DB_URL ou VERCEL, sinon sqlite (local).
+| Sans DB_CONNECTION explicite :
+| - supabase si SUPABASE_DB_URL est défini ;
+| - pgsql si une URL PostgreSQL est fournie (DB_URL, DATABASE_URL, POSTGRES_URL, etc.) ;
+| - sqlite sinon (local uniquement — pas de fichier persistant sur Vercel).
+|
+| Ne pas forcer « supabase » sur VERCEL sans URL : la config retombait sur 127.0.0.1:5432.
 */
+$postgresUrl = env('DB_URL')
+    ?: env('DATABASE_URL')
+    ?: env('POSTGRES_URL')
+    ?: env('POSTGRES_PRISMA_URL');
+
 $dbDefault = env('DB_CONNECTION');
 if ($dbDefault === null || $dbDefault === '') {
     if (env('SUPABASE_DB_URL')) {
         $dbDefault = 'supabase';
-    } elseif (getenv('VERCEL') === '1' || env('VERCEL')) {
-        $dbDefault = 'supabase';
+    } elseif (is_string($postgresUrl) && str_starts_with($postgresUrl, 'postgres')) {
+        $dbDefault = 'pgsql';
     } else {
         $dbDefault = 'sqlite';
     }
@@ -101,7 +110,7 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),
+            'url' => env('DB_URL') ?: env('DATABASE_URL') ?: env('POSTGRES_URL') ?: env('POSTGRES_PRISMA_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'laravel'),

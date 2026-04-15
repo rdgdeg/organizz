@@ -40,7 +40,13 @@ SQLite ne fonctionne pas sur Vercel (pas de fichier persistant). Définir au min
 
 - `SUPABASE_DB_URL=postgresql://postgres:[MOT_DE_PASSE]@db.[PROJECT_REF].supabase.co:5432/postgres?sslmode=require`
 
-Sans `DB_CONNECTION`, l’application choisit automatiquement la connexion `supabase` si `SUPABASE_DB_URL` ou `VERCEL` est défini (`config/database.php`).
+Sans `DB_CONNECTION`, l’application choisit automatiquement :
+
+- la connexion **`supabase`** si `SUPABASE_DB_URL` est défini ;
+- sinon **`pgsql`** si une URL PostgreSQL est présente (`DB_URL`, `DATABASE_URL`, `POSTGRES_URL` ou `POSTGRES_PRISMA_URL`, typique avec l’extension Postgres Vercel) ;
+- sinon **`sqlite`** (inadapté à Vercel : définir au moins une des URLs ci-dessus).
+
+**Important :** ne pas s’appuyer sur la variable système `VERCEL` seule : sans URL de base, il faut absolument ajouter `SUPABASE_DB_URL` ou `DATABASE_URL` dans les variables du projet.
 
 Alternative : `DB_CONNECTION=supabase` et renseigner `SUPABASE_DB_HOST`, `SUPABASE_DB_PORT`, `SUPABASE_DB_DATABASE`, `SUPABASE_DB_USERNAME`, `SUPABASE_DB_PASSWORD`.
 
