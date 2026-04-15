@@ -20,6 +20,10 @@ class EnsurePlanLimits
             abort(403);
         }
 
+        if ($user->isSuperAdmin()) {
+            return $next($request);
+        }
+
         if ($user->plan === 'pro') {
             return $next($request);
         }

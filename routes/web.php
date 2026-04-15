@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\EventsOverviewController;
+use App\Http\Controllers\Admin\UsersController as AdminUsersController;
 use App\Http\Controllers\Organizer\EventCollaboratorController;
 use App\Http\Controllers\Organizer\EventController;
 use App\Http\Controllers\Organizer\EventDuplicateController;
@@ -100,6 +102,18 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profil', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profil', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::middleware(['auth', 'verified', 'super_admin'])
+    ->prefix('administration')
+    ->name('administration.')
+    ->group(function (): void {
+        Route::get('/utilisateurs', [AdminUsersController::class, 'index'])->name('utilisateurs.index');
+        Route::post('/utilisateurs', [AdminUsersController::class, 'store'])->name('utilisateurs.enregistrer');
+        Route::patch('/utilisateurs/{user}', [AdminUsersController::class, 'update'])->name('utilisateurs.mettre_a_jour');
+        Route::delete('/utilisateurs/{user}', [AdminUsersController::class, 'destroy'])->name('utilisateurs.supprimer');
+
+        Route::get('/evenements', EventsOverviewController::class)->name('evenements.index');
+    });
 
 /*
 |--------------------------------------------------------------------------

@@ -52,6 +52,13 @@ const showingNavigationDropdown = ref(false);
                             <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                 Tableau de bord
                             </NavLink>
+                            <NavLink
+                                v-if="$page.props.auth.user?.is_super_admin"
+                                :href="route('administration.utilisateurs.index')"
+                                :active="$page.url.startsWith('/administration')"
+                            >
+                                Administration
+                            </NavLink>
                         </div>
                     </div>
 
@@ -111,6 +118,13 @@ const showingNavigationDropdown = ref(false);
                 <div class="space-y-1 px-4 pb-3 pt-2">
                     <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                         Tableau de bord
+                    </ResponsiveNavLink>
+                    <ResponsiveNavLink
+                        v-if="$page.props.auth.user?.is_super_admin"
+                        :href="route('administration.utilisateurs.index')"
+                        :active="$page.url.startsWith('/administration')"
+                    >
+                        Administration
                     </ResponsiveNavLink>
                 </div>
 

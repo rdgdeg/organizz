@@ -56,6 +56,10 @@ class EventPolicy
 
     private function role(User $user, Event $event): ?string
     {
+        if ($user->isSuperAdmin()) {
+            return 'owner';
+        }
+
         if ($user->id === $event->user_id) {
             return 'owner';
         }

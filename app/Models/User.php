@@ -29,7 +29,29 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_super_admin' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::created(function (User $user): void {
+            $list = config('organizz.super_admin_emails', []);
+            if ($list !== [] && in_array(strtolower((string) $user->email), $list, true) && ! $user->is_super_admin) {
+                $user->forceFill(['is_super_admin' => true])->saveQuietly();
+            }
+        });
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        if ((bool) ($this->is_super_admin ?? false)) {
+            return true;
+        }
+
+        $list = config('organizz.super_admin_emails', []);
+
+        return $list !== [] && in_array(strtolower((string) $this->email), $list, true);
     }
 
     public function events(): HasMany

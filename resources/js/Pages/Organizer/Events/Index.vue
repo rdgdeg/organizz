@@ -5,6 +5,10 @@ import { Head, Link } from '@inertiajs/vue3';
 
 defineProps({
     events: Array,
+    showEventOwners: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 function statusLabel(status) {
@@ -41,7 +45,7 @@ function statusBadgeClass(status) {
         <template #header>
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <h2 class="text-2xl font-bold tracking-tight text-slate-900">
-                    Mes événements
+                    {{ showEventOwners ? 'Tous les événements' : 'Mes événements' }}
                 </h2>
                 <Link :href="route('evenements.creer')">
                     <PrimaryButton>Nouvel événement</PrimaryButton>
@@ -72,6 +76,9 @@ function statusBadgeClass(status) {
                                 <span class="tabular-nums">{{ e.date_start }}</span>
                                 <span class="text-slate-400"> → </span>
                                 <span class="tabular-nums">{{ e.date_end }}</span>
+                            </p>
+                            <p v-if="showEventOwners && e.owner_email" class="mt-1 text-xs text-slate-500">
+                                {{ e.owner_name }} · {{ e.owner_email }}
                             </p>
                             <div class="mt-3 flex flex-wrap items-center gap-2">
                                 <span

@@ -18,14 +18,20 @@ class EventController extends Controller
     public function index(Request $request): Response
     {
         $uid = $request->user()->id;
-        $events = Event::query()
-            ->where(function ($q) use ($uid): void {
-                $q->where('user_id', $uid)
-                    ->orWhereHas('collaborators', fn ($q2) => $q2->where('users.id', $uid));
+        $isSuper = $request->user()->isSuperAdmin();
+
+        $query = Event::query()
+            ->when(! $isSuper, function ($q) use ($uid): void {
+                $q->where(function ($q2) use ($uid): void {
+                    $q2->where('user_id', $uid)
+                        ->orWhereHas('collaborators', fn ($q3) => $q3->where('users.id', $uid));
+                });
             })
-            ->orderByDesc('updated_at')
-            ->get()
-            ->map(fn (Event $e) => [
+            ->when($isSuper, fn ($q) => $q->with('user:id,name,email'))
+            ->orderByDesc('updated_at');
+
+        $events = $query->get()->map(function (Event $e) use ($isSuper) {
+            $row = [
                 'id' => $e->id,
                 'title' => $e->title,
                 'slug' => $e->slug,
@@ -34,10 +40,18 @@ class EventController extends Controller
                 'date_start' => $e->date_start?->toDateString(),
                 'date_end' => $e->date_end?->toDateString(),
                 'public_link_token' => $e->public_link_token,
-            ]);
+            ];
+            if ($isSuper) {
+                $row['owner_name'] = $e->user?->name;
+                $row['owner_email'] = $e->user?->email;
+            }
+
+            return $row;
+        });
 
         return Inertia::render('Organizer/Events/Index', [
             'events' => $events,
+            'showEventOwners' => $isSuper,
         ]);
     }
 
